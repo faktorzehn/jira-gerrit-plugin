@@ -20,7 +20,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.plugin.webfragment.contextproviders.AbstractJiraContextProvider;
 import com.atlassian.jira.plugin.webfragment.model.JiraHelper;
 import com.atlassian.jira.user.ApplicationUser;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +32,7 @@ public class GerritReviewsIssueSidePanel extends AbstractJiraContextProvider {
     private static final String KEY_CHANGES = "changes";
     private static final String KEY_ERROR = "error";
 
-    private IssueReviewsManager reviewsManager;
+    private final IssueReviewsManager reviewsManager;
 
     public GerritReviewsIssueSidePanel(IssueReviewsManager reviewsManager) {
         super();

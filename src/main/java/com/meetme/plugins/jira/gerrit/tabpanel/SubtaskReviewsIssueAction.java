@@ -30,8 +30,8 @@ import java.util.Map;
  */
 public class SubtaskReviewsIssueAction extends AbstractIssueAction implements IssueAction {
 
-    private Issue subtask;
-    private List<GerritChange> changes;
+    private final Issue subtask;
+    private final List<GerritChange> changes;
 
     public SubtaskReviewsIssueAction(IssueTabPanelModuleDescriptor descriptor, Issue subtask, List<GerritChange> changes) {
         super(descriptor);

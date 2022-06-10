@@ -29,7 +29,7 @@ import com.atlassian.jira.user.UserUtils;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.message.I18nResolver;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,11 +93,7 @@ public class GerritReviewsTabPanel extends AbstractIssueTabPanel2 implements Iss
 
     @Override
     public ShowPanelReply showPanel(ShowPanelRequest arg0) {
-        boolean isShowing = true;
-
-        if (!isConfigurationReady()) {
-            isShowing = false;
-        }
+        boolean isShowing = isConfigurationReady();
 
         return ShowPanelReply.create(isShowing);
     }

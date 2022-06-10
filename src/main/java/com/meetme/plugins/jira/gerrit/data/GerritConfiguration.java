@@ -30,6 +30,7 @@ public interface GerritConfiguration {
     String FIELD_QUERY_ISSUE = "issueSearchQuery";
     String FIELD_QUERY_PROJECT = "projectSearchQuery";
 
+    String FIELD_PREFER_REST_CONNECTION = "preferRest";
     String FIELD_HTTP_BASE_URL = "httpBaseUrl";
     String FIELD_HTTP_USERNAME = "httpUsername";
     String FIELD_HTTP_PASSWORD = "httpPassword";
@@ -44,6 +45,8 @@ public interface GerritConfiguration {
     String getHttpPassword();
 
     String getHttpUsername();
+
+    boolean getPreferRestConnection();
 
     String getIssueSearchQuery();
 
@@ -65,6 +68,8 @@ public interface GerritConfiguration {
 
     void setHttpUsername(String httpUsername);
 
+    void setPreferRestConnection(boolean preferRestConnection);
+
     void setIssueSearchQuery(String query);
 
     void setProjectSearchQuery(String query);
@@ -80,6 +85,8 @@ public interface GerritConfiguration {
     void setShowEmptyPanel(boolean show);
 
     boolean isSshValid();
+
+    boolean isHttpValid();
 
     List<String> getIdsOfKnownGerritProjects();
 

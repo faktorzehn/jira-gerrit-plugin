@@ -13,15 +13,13 @@
  */
 package com.meetme.plugins.jira.gerrit.tabpanel;
 
-import com.meetme.plugins.jira.gerrit.data.dto.GerritApproval;
-import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
-import com.meetme.plugins.jira.gerrit.data.dto.GerritPatchSet;
-
 import com.atlassian.core.util.map.EasyMap;
 import com.atlassian.jira.datetime.DateTimeFormatter;
 import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.plugin.issuetabpanel.IssueTabPanelModuleDescriptor;
-
+import com.meetme.plugins.jira.gerrit.data.dto.GerritApproval;
+import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
+import com.meetme.plugins.jira.gerrit.data.dto.GerritPatchSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -182,9 +180,9 @@ public class GerritReviewIssueActionTest {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> setUpExpectedVelocityParams() {
-        return (Map<String, Object>) EasyMap.build("change", (Object) change,
-                "formatLastUpdated", (Object) TEST_FORMATTED_LAST_UPDATED,
-                "isoLastUpdated", (Object) TEST_ISO_LAST_UPDATED,
+        return EasyMap.build("change", change,
+                "formatLastUpdated", TEST_FORMATTED_LAST_UPDATED,
+                "isoLastUpdated", TEST_ISO_LAST_UPDATED,
                 "baseurl", (Object) BASE_URL);
     }
 }

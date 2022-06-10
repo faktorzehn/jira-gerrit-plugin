@@ -20,7 +20,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.workflow.condition.AbstractJiraCondition;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.WorkflowException;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,7 @@ import java.util.Map;
 public class NoOpenReviews extends AbstractJiraCondition {
     public static final String KEY_REVERSED = "reversed";
 
-    private IssueReviewsManager reviewsManager;
+    private final IssueReviewsManager reviewsManager;
 
     public NoOpenReviews(IssueReviewsManager reviewsManager) {
         this.reviewsManager = reviewsManager;
@@ -66,8 +66,8 @@ public class NoOpenReviews extends AbstractJiraCondition {
      * Counts the number of reviews that are open or closed.
      *
      * @param reviews a set of Gerrit changes
-     * @param isOpen {@code true} to count all open reviews, {@code false} to
-     * count all non-open reviews.
+     * @param isOpen  {@code true} to count all open reviews, {@code false} to
+     *                count all non-open reviews.
      * @return the number of changes within {@code reviews} that match the
      * {@code isOpen} flag.
      */

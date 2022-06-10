@@ -14,16 +14,16 @@
 package com.meetme.plugins.jira.gerrit.tabpanel;
 
 /**
- * Extension of {@link com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys
+ * Extension of {@link com.sonymobile.tools.gerrit.gerritevents.dto.GerritEventKeys
  * sonyericsson.GerritEventKeys} to provide additional missing keys.
  *
  * @author Joe Hansche
  */
 public interface GerritEventKeys {
-    public static final String APPROVALS = "approvals";
-    public static final String BY = "by";
-    public static final String CURRENT_PATCH_SET = "currentPatchSet";
-    public static final String LAST_UPDATED = "lastUpdated";
-    public static final String OPEN = "open";
-    public static final String STATUS = "status";
+    String APPROVALS = "approvals";
+    String BY = "by";
+    String CURRENT_PATCH_SET = "currentPatchSet";
+    String LAST_UPDATED = "lastUpdated";
+    String OPEN = "open";
+    String STATUS = "status";
 }
