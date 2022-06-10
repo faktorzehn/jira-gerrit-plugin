@@ -15,6 +15,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
+<!-- "This is an XML file that identifies the plugin to the host application (HOSTAPP) and defines the required plugin functionality" -->
+
 <atlassian-plugin name="${project.name}" key="${project.groupId}.${project.artifactId}" plugins-version="2">
     <plugin-info>
         <description>${project.description}</description>
@@ -76,6 +79,7 @@
         <resource name="i18n" location="i18n.admin" type="i18n" />
         <url-pattern>/gerrit/admin</url-pattern>
     </servlet>
+    <!-- End of Admin panel -->
 
     <!-- Issue tab for Gerrit Reviews -->
 

@@ -22,7 +22,7 @@ import com.atlassian.core.user.preferences.Preferences;
 import com.atlassian.jira.user.preferences.UserPreferencesManager;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.WorkflowException;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 
 import org.junit.After;
 import org.junit.Before;

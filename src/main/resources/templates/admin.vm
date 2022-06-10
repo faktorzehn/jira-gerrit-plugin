@@ -88,6 +88,13 @@
             <!-- This is not yet implemented: for JSON-RPC access -->
             <h3>$i18n.getText("gerrit.admin.http.label")</h3>
 
+            <fieldset class="group">
+                <input class="checkbox" type="checkbox" id="preferRest" name="preferRest" value="true"
+                    #if ($!preferRest == "true") checked="checked" #end />
+                <label for="showEmptyPanel">$i18n.getText("gerrit.admin.RestCheckbox.label")</label>
+                <div class="description">$i18n.getText("gerrit.admin.RestCheckbox.description")</div>
+            </fieldset>
+
             <div class="field-group">
                 <label for="httpBaseUrl">
                     $i18n.getText("gerrit.admin.httpBaseUrl.label")

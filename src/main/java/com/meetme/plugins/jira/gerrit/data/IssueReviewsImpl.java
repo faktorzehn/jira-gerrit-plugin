@@ -22,7 +22,7 @@ import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.core.user.preferences.Preferences;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class IssueReviewsImpl implements IssueReviewsManager {
+
     private static final Logger log = LoggerFactory.getLogger(IssueReviewsImpl.class);
 
     private final Cache<String, List<GerritChange>> cache;

@@ -14,7 +14,7 @@
 package com.meetme.plugins.jira.gerrit.tabpanel;
 
 /**
- * Extension of {@link com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys
+ * Extension of {@link com.sonymobile.tools.gerrit.gerritevents.dto.GerritEventKeys
  * sonyericsson.GerritEventKeys} to provide additional missing keys.
  *
  * @author Joe Hansche

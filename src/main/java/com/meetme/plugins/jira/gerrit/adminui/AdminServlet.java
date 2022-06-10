@@ -13,8 +13,6 @@
  */
 package com.meetme.plugins.jira.gerrit.adminui;
 
-import com.meetme.plugins.jira.gerrit.data.GerritConfiguration;
-
 import com.atlassian.jira.config.util.JiraHome;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
@@ -23,10 +21,11 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryHandler;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.Authentication;
-
+import com.meetme.plugins.jira.gerrit.data.GerritConfiguration;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandler;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandlerHttp;
+import com.sonymobile.tools.gerrit.gerritevents.ssh.Authentication;
+import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
@@ -37,25 +36,24 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.security.Principal;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+//class is described in detail here:    https://developer.atlassian.com/server/framework/atlassian-sdk/creating-an-admin-configuration-form/
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = -9175363090552720328L;
-    private static final Logger log = LoggerFactory.getLogger(AdminServlet.class);
+    protected static Logger log = LoggerFactory.getLogger(AdminServlet.class);
 
     private static final Object[] PACKAGE_PARTS = new String[] { "com", "meetme", "plugins", "jira", "gerrit" };
     private static final String CONTENT_TYPE = "text/html;charset=utf-8";
@@ -83,6 +81,7 @@ public class AdminServlet extends HttpServlet {
         this.projectManager = projectManager;
     }
 
+
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
         String username = userManager.getRemoteUsername(request);
@@ -93,6 +92,8 @@ public class AdminServlet extends HttpServlet {
         }
 
         response.setContentType(CONTENT_TYPE);
+
+        //tell TemplateRenderer to render the TEMPLATE_ADMIN template
         renderer.render(TEMPLATE_ADMIN, configToMap(configurationManager), response.getWriter());
     }
 
@@ -108,9 +109,10 @@ public class AdminServlet extends HttpServlet {
         map.put(GerritConfiguration.FIELD_QUERY_PROJECT, config.getProjectSearchQuery());
 
         if (config.getHttpBaseUrl() != null) {
-            map.put(GerritConfiguration.FIELD_HTTP_BASE_URL, config.getHttpBaseUrl().toASCIIString());
+            map.put(GerritConfiguration.FIELD_HTTP_BASE_URL, config.getHttpBaseUrl().toString());
             map.put(GerritConfiguration.FIELD_HTTP_USERNAME, config.getHttpUsername());
             map.put(GerritConfiguration.FIELD_HTTP_PASSWORD, config.getHttpPassword());
+            map.put(GerritConfiguration.FIELD_PREFER_REST_CONNECTION, String.valueOf(config.getPreferRestConnection()));
         }
 
         map.put(GerritConfiguration.FIELD_SHOW_EMPTY_PANEL, String.valueOf(config.getShowsEmptyPanel()));
@@ -192,23 +194,63 @@ public class AdminServlet extends HttpServlet {
         return map;
     }
 
-    private void performConnectionTest(GerritConfiguration configuration, Map<String, Object> map) {
+    void performConnectionTest(GerritConfiguration configuration, Map<String, Object> map) {
         map.put("testResult", Boolean.FALSE);
 
-        if (!configuration.isSshValid()) {
-            map.put("testError", "not configured");
-            return;
+        if(configuration.getPreferRestConnection()) {
+            //TODO: better URL-check
+            //https://toolsqa.com/rest-assured/rest-api-test-using-rest-assured/
+
+            GerritQueryHandlerHttp.Credential credential = new GerritQueryHandlerHttp.Credential(){
+                @Override
+                public Principal getUserPrincipal() {
+                    return new Principal() {
+                        @Override
+                        public String getName() {
+                            return configuration.getHttpUsername();
+                        }
+                    };
+                    //() -> ""; lambdas are tripping up CheckStyle
+                }
+
+                @Override
+                public String getPassword() {
+                    return configuration.getHttpPassword();
+                }
+            };
+
+
+            GerritQueryHandlerHttp query = new GerritQueryHandlerHttp(configuration.getHttpBaseUrl().toString(), credential, "");
+
+            try {
+                //try to fetch the newest change
+                query.queryJava("limit:1", false, false, false);
+                map.put("testResult", Boolean.TRUE);
+            } catch (IOException | com.sonymobile.tools.gerrit.gerritevents.GerritQueryException e) {
+                e.printStackTrace();
+                map.put("testError", e.getMessage());
+                log.error(e.getMessage());
+            }
         }
+        else
+        {
+            if (!configuration.isSshValid()) {
+                map.put("testError", "not configured");
+                return;
+            }
 
-        Authentication auth = new Authentication(configuration.getSshPrivateKey(), configuration.getSshUsername());
-        GerritQueryHandler query = new GerritQueryHandler(configuration.getSshHostname(), configuration.getSshPort(), null, auth);
+            Authentication auth = new Authentication(configuration.getSshPrivateKey(), configuration.getSshUsername());
+            GerritQueryHandler query = new GerritQueryHandler(configuration.getSshHostname(), configuration.getSshPort(), null, auth);
 
-        try {
-            query.queryJava("limit:1", false, false, false);
-            map.put("testResult", Boolean.TRUE);
-        } catch (IOException | GerritQueryException e) {
-            e.printStackTrace();
-            map.put("testError", e.getMessage());
+            try {
+                //trying to fetch the newest change
+                List<JSONObject> s = query.queryJava("limit:1", false, false, false);
+
+                map.put("testResult", Boolean.TRUE);
+            } catch (IOException | com.sonymobile.tools.gerrit.gerritevents.GerritQueryException e) {
+                e.printStackTrace();
+                map.put("testError", e.getMessage());
+            }
         }
     }
 
@@ -263,6 +305,9 @@ public class AdminServlet extends HttpServlet {
         boolean showsEmptyPanelChecked = allFields.contains(GerritConfiguration.FIELD_SHOW_EMPTY_PANEL);
         configurationManager.setShowEmptyPanel(showsEmptyPanelChecked);
 
+        boolean preferRESTChecked = allFields.contains(GerritConfiguration.FIELD_PREFER_REST_CONNECTION);
+        configurationManager.setPreferRestConnection(preferRESTChecked);
+
         boolean useGerritProjectWhitelist = allFields.contains(GerritConfiguration.FIELD_USE_GERRIT_PROJECT_WHITELIST);
         configurationManager.setUseGerritProjectWhitelist(useGerritProjectWhitelist);
 
@@ -308,6 +353,7 @@ public class AdminServlet extends HttpServlet {
         return privateKeyPath;
     }
 
+    //request ~~> URI
     private URI getUri(final HttpServletRequest request) {
         StringBuffer builder = request.getRequestURL();
 

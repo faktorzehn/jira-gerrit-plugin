@@ -19,7 +19,7 @@ import com.meetme.plugins.jira.gerrit.data.IssueReviewsManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.plugin.issuetabpanel.IssueAction;
 import com.atlassian.jira.user.ApplicationUser;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 
 import org.junit.After;
 import org.junit.Before;

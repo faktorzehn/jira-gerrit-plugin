@@ -13,8 +13,11 @@
  */
 package com.meetme.plugins.jira.gerrit.data.dto;
 
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.attr.PatchSet;
+import com.sonymobile.tools.gerrit.gerritevents.GerritJsonEventFactory;
+import com.sonymobile.tools.gerrit.gerritevents.dto.GerritChangeKind;
+import com.sonymobile.tools.gerrit.gerritevents.dto.GerritEventKeys;
+import com.sonymobile.tools.gerrit.gerritevents.dto.attr.Account;
+import com.sonymobile.tools.gerrit.gerritevents.dto.attr.PatchSet;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -22,11 +25,18 @@ import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * full credits to https://github.com/lauyoo46 for his parsing methods
+ * {@link com.meetme.plugins.jira.gerrit.data.dto.GerritPatchSet#fromJsonHTTP(JSONObject)} and
+ * {@link com.meetme.plugins.jira.gerrit.data.dto.GerritPatchSet#extractApprovals(JSONObject)}
+ * https://github.com/lauyoo46/jira-gerrit-plugin
+ */
 public class GerritPatchSet extends PatchSet {
     private static final Logger log = LoggerFactory.getLogger(GerritPatchSet.class);
 
@@ -40,6 +50,16 @@ public class GerritPatchSet extends PatchSet {
         super(json);
     }
 
+    public GerritPatchSet(JSONObject json, boolean preferRest) {
+        if(!preferRest) {
+            fromJson(json);
+        }
+        else {
+            fromJsonHTTP(json);
+        }
+    }
+
+
     @Override
     public void fromJson(JSONObject json) {
         log.debug("GerritPatchSet from json: " + json.toString(4, 0));
@@ -48,6 +68,46 @@ public class GerritPatchSet extends PatchSet {
         if (json.containsKey(GerritEventKeys.APPROVALS)) {
             JSONArray eventApprovals = json.getJSONArray(GerritEventKeys.APPROVALS);
             approvals = new ArrayList<GerritApproval>(eventApprovals.size());
+
+            for (int i = 0; i < eventApprovals.size(); i++) {
+                GerritApproval approval = new GerritApproval(eventApprovals.getJSONObject(i));
+                approvals.add(approval);
+            }
+        } else {
+            log.warn("GerritPatchSet contains no approvals key.");
+        }
+    }
+
+    private void fromJsonHTTP(JSONObject json) {
+        log.debug("GerritPatchSet from json HTTP: {}", json.toString(4, 0));
+
+        String revision = GerritJsonEventFactory.getString(json, "current_revision");
+        JSONObject jsonRevision = json.getJSONObject("revisions").getJSONObject(revision);
+        this.setNumber(GerritJsonEventFactory.getString(jsonRevision, "_number"));
+        this.setRevision(revision);
+        this.setDraft(GerritJsonEventFactory.getBoolean(jsonRevision, "isDraft"));
+
+        String dateCreated = jsonRevision.getString("created");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            this.setCreatedOn(sdf.parse(dateCreated));
+        } catch (ParseException e) {
+            log.error("Error when trying to format date! " , e);
+        }
+        if (jsonRevision.containsKey("kind")) {
+            this.setKind(GerritChangeKind.fromString(GerritJsonEventFactory.getString(jsonRevision, "kind")));
+        }
+        this.setRef(GerritJsonEventFactory.getString(jsonRevision, "ref"));
+        if (jsonRevision.containsKey("uploader")) {
+            this.setUploader(new Account(jsonRevision.getJSONObject("uploader")));
+        }
+        extractApprovals(json);
+    }
+
+    private void extractApprovals(JSONObject json) {
+        if (json.containsKey(GerritEventKeys.APPROVALS)) {
+            JSONArray eventApprovals = json.getJSONArray(GerritEventKeys.APPROVALS);
+            approvals = new ArrayList<>(eventApprovals.size());
 
             for (int i = 0; i < eventApprovals.size(); i++) {
                 GerritApproval approval = new GerritApproval(eventApprovals.getJSONObject(i));
@@ -87,7 +147,6 @@ public class GerritPatchSet extends PatchSet {
                 }
             }
         }
-
         return filtered;
     }
 

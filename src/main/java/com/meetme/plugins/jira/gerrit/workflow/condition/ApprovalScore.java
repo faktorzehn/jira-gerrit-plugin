@@ -21,7 +21,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.workflow.condition.AbstractJiraCondition;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.WorkflowException;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

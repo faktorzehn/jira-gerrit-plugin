@@ -17,6 +17,8 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
+import net.sf.json.JSONObject;
 
 import java.io.File;
 import java.net.URI;
@@ -31,6 +33,7 @@ import java.util.List;
 public class GerritConfigurationImpl implements GerritConfiguration {
     private static final String PLUGIN_STORAGE_KEY = "com.meetme.plugins.jira.gerrit.data";
     private final PluginSettings settings;
+
 
     public GerritConfigurationImpl(PluginSettingsFactory pluginSettingsFactory) {
         this.settings = pluginSettingsFactory.createSettingsForKey(PLUGIN_STORAGE_KEY);
@@ -63,8 +66,21 @@ public class GerritConfigurationImpl implements GerritConfiguration {
     }
 
     @Override
+    public boolean getPreferRestConnection()
+
+
+    {
+        return Boolean.parseBoolean((String) settings.get(FIELD_PREFER_REST_CONNECTION));
+    }
+
+    @Override
     public void setHttpUsername(String httpUsername) {
         settings.put(FIELD_HTTP_USERNAME, httpUsername);
+    }
+
+    @Override
+    public void setPreferRestConnection(boolean preferRestConnection) {
+        settings.put(FIELD_PREFER_REST_CONNECTION, String.valueOf(preferRestConnection));
     }
 
     @Override
@@ -150,6 +166,15 @@ public class GerritConfigurationImpl implements GerritConfiguration {
                 && getSshPrivateKey() != null
                 && getSshPrivateKey().exists();
     }
+
+    @Override
+    public boolean isHttpValid() {
+        return !Strings.isNullOrEmpty(String.valueOf(getHttpBaseUrl()))
+                && !Strings.isNullOrEmpty(getHttpUsername())
+                && !Strings.isNullOrEmpty(getHttpPassword());
+    }
+
+
 
     @Override
     public List<String> getIdsOfKnownGerritProjects() {

@@ -24,7 +24,7 @@ import com.atlassian.jira.plugin.webfragment.JiraWebInterfaceManager;
 import com.atlassian.jira.plugin.webfragment.model.JiraHelper;
 import com.atlassian.jira.util.collect.MapBuilder;
 import com.atlassian.plugin.PluginParseException;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

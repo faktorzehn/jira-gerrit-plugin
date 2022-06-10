@@ -4,10 +4,11 @@ import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
 
 import com.atlassian.cache.CacheException;
 import com.atlassian.cache.CacheLoader;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryHandler;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.Authentication;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.SshException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandler;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandlerHttp;
+import com.sonymobile.tools.gerrit.gerritevents.ssh.Authentication;
+import com.sonymobile.tools.gerrit.gerritevents.ssh.SshException;
 
 import net.sf.json.JSONObject;
 
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,22 +47,59 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
 
     protected List<GerritChange> getReviewsFromGerrit(String searchQuery) throws GerritQueryException {
         List<GerritChange> changes;
+        List<JSONObject> reviews = new ArrayList<>();
 
-        if (!configuration.isSshValid()) {
-            // return Collections.emptyList();
-            throw new GerritConfiguration.NotConfiguredException("Not configured for SSH access");
+        if(configuration.getPreferRestConnection())
+        {
+            if (!configuration.isHttpValid()) {
+                // return Collections.emptyList();
+                throw new GerritConfiguration.NotConfiguredException("Not configured for HTTP access");
+            }
+
+            GerritQueryHandlerHttp.Credential credential = new GerritQueryHandlerHttp.Credential(){
+                @Override
+                public Principal getUserPrincipal() {
+                    return new Principal() {
+                        @Override
+                        public String getName() {
+                            return configuration.getHttpUsername();
+                        }
+                    };
+                    //() -> ""; lambdas are tripping up CheckStyle
+                }
+
+                @Override
+                public String getPassword() {
+                    return configuration.getHttpPassword();
+                }
+            };
+
+            GerritQueryHandlerHttp query = new GerritQueryHandlerHttp(configuration.getHttpBaseUrl().toString(), credential, "");
+            try {
+                reviews = query.queryJava(searchQuery, false, true, false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
+        else
+        {
+            if (!configuration.isSshValid()) {
+                // return Collections.emptyList();
+                throw new GerritConfiguration.NotConfiguredException("Not configured for SSH access");
+            }
 
-        Authentication auth = new Authentication(configuration.getSshPrivateKey(), configuration.getSshUsername());
-        GerritQueryHandler query = new GerritQueryHandler(configuration.getSshHostname(), configuration.getSshPort(), null, auth);
-        List<JSONObject> reviews;
+            Authentication auth = new Authentication(configuration.getSshPrivateKey(), configuration.getSshUsername());
+            GerritQueryHandler query = new GerritQueryHandler(configuration.getSshHostname(), configuration.getSshPort(), null, auth);
 
-        try {
-            reviews = query.queryJava(searchQuery, false, true, false);
-        } catch (SshException e) {
-            throw new GerritQueryException("An ssh error occurred while querying for reviews.", e);
-        } catch (IOException e) {
-            throw new GerritQueryException("An error occurred while querying for reviews.", e);
+
+            try {
+                reviews = query.queryJava(searchQuery, false, true, false);
+            } catch (SshException e) {
+                throw new GerritQueryException("An ssh error occurred while querying for reviews.", e);
+            } catch (IOException e) {
+                throw new GerritQueryException("An error occurred while querying for reviews.", e);
+            }
         }
 
         changes = new ArrayList<>(reviews.size());
@@ -74,8 +113,7 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
                 }
                 continue;
             }
-
-            changes.add(new GerritChange(obj));
+            changes.add(new GerritChange(obj, configuration.getPreferRestConnection()));
         }
 
         Collections.sort(changes);

@@ -14,7 +14,8 @@
 package com.meetme.plugins.jira.gerrit.data.dto;
 
 import com.atlassian.jira.user.ApplicationUser;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.attr.Approval;
+import com.sonymobile.tools.gerrit.gerritevents.dto.attr.Account;
+import com.sonymobile.tools.gerrit.gerritevents.dto.attr.Approval;
 
 import net.sf.json.JSONObject;
 
@@ -22,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.meetme.plugins.jira.gerrit.tabpanel.GerritEventKeys.BY;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.EMAIL;
-import static com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.GerritEventKeys.NAME;
+import static com.sonymobile.tools.gerrit.gerritevents.dto.GerritEventKeys.EMAIL;
+import static com.sonymobile.tools.gerrit.gerritevents.dto.GerritEventKeys.NAME;
 
 public class GerritApproval extends Approval implements Comparable<GerritApproval> {
     private static final Logger log = LoggerFactory.getLogger(GerritApproval.class);
@@ -97,7 +98,9 @@ public class GerritApproval extends Approval implements Comparable<GerritApprova
      *
      * @return Approver's name as a string.
      */
-    public String getBy() {
+    public String getByString() {
+        //return by;
+
         return by;
     }
 
@@ -148,6 +151,6 @@ public class GerritApproval extends Approval implements Comparable<GerritApprova
     @Override
     public String toString() {
         int value = getValueAsInt();
-        return (value > 0 ? "+" : "") + value + " by " + getBy();
+        return (value > 0 ? "+" : "") + value + " by " + getByString();
     }
 }

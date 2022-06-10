@@ -58,7 +58,7 @@ public class GerritApprovalTest {
     }
 
     private static void assertFull(GerritApproval obj) {
-        assertEquals(EXPECTED_NAME, obj.getBy());
+        assertEquals(EXPECTED_NAME, obj.getByString());
         assertEquals(EXPECTED_EMAIL, obj.getByEmail());
         assertEquals(EXPECTED_TYPE, obj.getType());
         assertEquals(EXPECTED_VALUE, obj.getValue());
@@ -105,7 +105,7 @@ public class GerritApprovalTest {
 
         GerritApproval obj = new GerritApproval(BASE_TEST);
         assertNull(obj.getByEmail());
-        assertEquals(EXPECTED_NAME, obj.getBy());
+        assertEquals(EXPECTED_NAME, obj.getByString());
     }
 
     @Test
@@ -115,7 +115,7 @@ public class GerritApprovalTest {
         BASE_TEST.element("by", by);
 
         GerritApproval obj = new GerritApproval(BASE_TEST);
-        assertNull(obj.getBy());
+        assertNull(obj.getByString());
         assertEquals(EXPECTED_EMAIL, obj.getByEmail());
     }
 

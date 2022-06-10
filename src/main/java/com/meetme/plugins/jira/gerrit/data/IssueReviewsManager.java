@@ -17,10 +17,11 @@ import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
 
 import com.atlassian.core.user.preferences.Preferences;
 import com.atlassian.jira.issue.Issue;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryHandler;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandler;
 
 import net.sf.json.JSONObject;
+
 
 import java.io.IOException;
 import java.util.List;
