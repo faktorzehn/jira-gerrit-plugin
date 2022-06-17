@@ -24,7 +24,11 @@ import com.sonymobile.tools.gerrit.gerritevents.dto.rest.Topic;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,6 +44,10 @@ import static com.meetme.plugins.jira.gerrit.tabpanel.GerritEventKeys.LAST_UPDAT
  * https://github.com/lauyoo46/jira-gerrit-plugin
  */
 public class GerritChange extends Change implements Comparable<GerritChange> {
+
+    private static final Logger log = LoggerFactory.getLogger(GerritPatchSet.class);
+
+    private final String URL_PREFIX = "https://";
 
     private Date lastUpdated;
 
@@ -57,12 +65,12 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
 
     public GerritChange(JSONObject obj, boolean preferRest) {
         this.preferRest = preferRest;
-        if(!preferRest) {
-           fromJson(obj);
-        }
-        else {
+        if (preferRest) {
             fromJsonRest(obj);
+        } else {
+            fromJson(obj);
         }
+        log.debug("Created change " + this.getId() +": "  + this.getUrl());
     }
 
     /**
@@ -107,7 +115,6 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
     }
 
     public void fromJsonRest(JSONObject json) {
-
         this.setProject(GerritJsonEventFactory.getString(json, "project"));
         this.setBranch(GerritJsonEventFactory.getString(json, "branch"));
         this.setId(GerritJsonEventFactory.getString(json, "change_id"));
@@ -121,6 +128,25 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
         if(json.containsKey("current_revision")) {
             String revision = GerritJsonEventFactory.getString(json, "current_revision");
             JSONObject jsonRevision = json.getJSONObject("revisions").getJSONObject(revision);
+
+            //modified url conversion, can use some testing
+            String uniqueUrl = jsonRevision.getJSONObject("fetch").getJSONObject("http").getString("url");
+            try {
+                URL newUrl = new URL(uniqueUrl);
+                //get url suffix: "refs/changes/19/1987/1" -> "/1987/1"
+                String suffix = jsonRevision.getJSONObject("fetch").getJSONObject("http").getString("ref");
+                for (int i = 0, j = 0; i < suffix.length(); i++) {
+                    if(suffix.charAt(i)=='/' && ++j == 3) {
+                        suffix = suffix.substring(i);
+                    }
+                }
+                log.debug("generated url: " + (URL_PREFIX + newUrl.getHost() + "/c" + newUrl.getFile().substring(2) + "/+" + suffix));
+                this.setUrl((URL_PREFIX + newUrl.getHost() + "/c" + newUrl.getFile().substring(2) + "/+" + suffix));
+
+            } catch (MalformedURLException e) {
+                log.warn(e.getMessage());
+            }
+
             JSONObject jsonCommit = jsonRevision.getJSONObject("commit");
             if (jsonCommit.containsKey("message")) {
                 String commitMessage = GerritJsonEventFactory.getString(jsonCommit, "message");
@@ -133,19 +159,7 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
                 this.setTopicObject(new Topic(topicName));
             }
         }
-        if(json.containsKey("url")) {
-            JSONObject urlJson = json.getJSONObject("url");
-            String scheme = GerritJsonEventFactory.getString(urlJson, "scheme");
-            String schemeSpecificPart = GerritJsonEventFactory.getString(urlJson, "schemeSpecificPart");
-            String number = GerritJsonEventFactory.getString(json, "_number");
-            //NOT implemented atm
-            /*if (!scheme.contains(com.sonymobile.tools.gerrit.gerritevents.dto.GerritEventKeys.URL_PREFIX)) {
-                scheme = com.sonymobile.tools.gerrit.gerritevents.dto.GerritEventKeys.URL_PREFIX + scheme;
-            }
-             */
-            String url = scheme + ":" + schemeSpecificPart + "/" + number;
-            this.setUrl(url);
-        }
+
         String dateUpdated = GerritJsonEventFactory.getString(json,"updated");
         String dateCreated = GerritJsonEventFactory.getString(json, "created");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -154,7 +168,7 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
             this.lastUpdated = sdf.parse(dateUpdated);
             super.setLastUpdated(lastUpdated);
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.warn(e.getMessage());
         }
 
         convertApprovals(json);
@@ -167,7 +181,6 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
 
         String stringStatus = this.getStatus().toString();
         this.isOpen = stringStatus.equals("NEW");
-
     }
 
     private void convertApprovals(JSONObject json)
@@ -218,7 +231,6 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
             }
         }
     }
-
 
     public Date getLastUpdated() {
         return lastUpdated;
