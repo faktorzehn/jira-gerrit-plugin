@@ -42,13 +42,13 @@ public class GerritReviewsIssueLeftPanel implements CacheableContextProvider {
     private static final String KEY_CHANGES = "changes";
     private static final String KEY_ERROR = "error";
 
-    private IssueReviewsManager reviewsManager;
+    private final IssueReviewsManager reviewsManager;
 
     private String gerritIssueType = null;
     private String gerritReviewStatus = null;
     private String gerritIssueStatus = null;
 
-    private GerritConfiguration config;
+    private final GerritConfiguration config;
 
     public GerritReviewsIssueLeftPanel(IssueReviewsManager reviewsManager, GerritConfiguration config) {
         super();

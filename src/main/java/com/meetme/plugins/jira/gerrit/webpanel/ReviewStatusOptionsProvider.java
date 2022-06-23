@@ -33,8 +33,8 @@ public class ReviewStatusOptionsProvider implements WebItemProvider {
     public static final String STATUS_ALL = "All";
     public static final String DEFAULT_STATUS = STATUS_ALL;
 
-    private VelocityRequestContextFactory requestContextFactory;
-    private JiraAuthenticationContext authenticationContext;
+    private final VelocityRequestContextFactory requestContextFactory;
+    private final JiraAuthenticationContext authenticationContext;
 
     public ReviewStatusOptionsProvider(VelocityRequestContextFactory requestContextFactory, JiraAuthenticationContext authenticationContext) {
         this.requestContextFactory = requestContextFactory;

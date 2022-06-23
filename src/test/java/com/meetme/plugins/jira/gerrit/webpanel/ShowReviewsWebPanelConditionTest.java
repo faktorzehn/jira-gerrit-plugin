@@ -1,17 +1,15 @@
 package com.meetme.plugins.jira.gerrit.webpanel;
 
-import com.meetme.plugins.jira.gerrit.data.GerritConfiguration;
-import com.meetme.plugins.jira.gerrit.data.IssueReviewsManager;
-import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
-
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.project.MockProject;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.meetme.plugins.jira.gerrit.data.GerritConfiguration;
+import com.meetme.plugins.jira.gerrit.data.IssueReviewsManager;
+import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
 import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
-
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;

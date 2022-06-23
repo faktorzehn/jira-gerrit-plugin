@@ -14,7 +14,7 @@
 package com.meetme.plugins.jira.gerrit;
 
 public interface SessionKeys {
-    public static final String VIEWISSUE_REVIEWS_ISSUETYPE = "com.meetme.jira.gerrit.issuetype";
-    public static final String VIEWISSUE_REVIEWS_REVIEWSTATUS = "com.meetme.jira.gerrit.reviewstatus";
-    public static final String VIEWISSUE_REVIEWS_ISSUESTATUS = "com.meetme.jira.gerrit.issuestatus";
+    String VIEWISSUE_REVIEWS_ISSUETYPE = "com.meetme.jira.gerrit.issuetype";
+    String VIEWISSUE_REVIEWS_REVIEWSTATUS = "com.meetme.jira.gerrit.reviewstatus";
+    String VIEWISSUE_REVIEWS_ISSUESTATUS = "com.meetme.jira.gerrit.issuestatus";
 }

@@ -39,9 +39,9 @@ public class IssueReviewsImpl implements IssueReviewsManager {
 
     private final Cache<String, List<GerritChange>> cache;
 
-    private GerritConfiguration configuration;
+    private final GerritConfiguration configuration;
 
-    private IssueManager jiraIssueManager;
+    private final IssueManager jiraIssueManager;
 
     public IssueReviewsImpl(
             GerritConfiguration configuration,

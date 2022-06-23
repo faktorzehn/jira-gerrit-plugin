@@ -26,12 +26,12 @@ import com.atlassian.jira.plugin.issuetabpanel.IssueTabPanelModuleDescriptor;
 import java.util.*;
 
 public class GerritReviewIssueAction extends AbstractIssueAction implements IssueAction {
-    private String baseUrl;
-    private GerritChange change;
-    private DateTimeFormatter dateTimeFormatter;
+    private final String baseUrl;
+    private final GerritChange change;
+    private final DateTimeFormatter dateTimeFormatter;
 
     public GerritReviewIssueAction(IssueTabPanelModuleDescriptor descriptor, GerritChange change,
-            DateTimeFormatter dateTimeFormatter, String baseUrl) {
+                                   DateTimeFormatter dateTimeFormatter, String baseUrl) {
         super(descriptor);
         this.dateTimeFormatter = dateTimeFormatter.forLoggedInUser();
         this.baseUrl = baseUrl;

@@ -13,12 +13,10 @@
  */
 package com.meetme.plugins.jira.gerrit.tabpanel;
 
-import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
-
 import com.atlassian.core.util.collection.EasyList;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.plugin.issuetabpanel.IssueTabPanelModuleDescriptor;
-
+import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -49,20 +49,22 @@ import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-//class is described in detail here:    https://developer.atlassian.com/server/framework/atlassian-sdk/creating-an-admin-configuration-form/
-
+/**
+ * the admin configuration panel. It is described in detail
+ * <a href="https://developer.atlassian.com/server/framework/atlassian-sdk/creating-an-admin-configuration-form/">here.</a>
+ */
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = -9175363090552720328L;
-    protected static Logger log = LoggerFactory.getLogger(AdminServlet.class);
+    private static final Logger log = LoggerFactory.getLogger(AdminServlet.class);
 
-    private static final Object[] PACKAGE_PARTS = new String[] { "com", "meetme", "plugins", "jira", "gerrit" };
+    private static final Object[] PACKAGE_PARTS = new String[]{"com", "meetme", "plugins", "jira", "gerrit"};
     private static final String CONTENT_TYPE = "text/html;charset=utf-8";
 
     private static final String FIELD_ACTION = "action";
     private static final String ACTION_SAVE = "save";
     private static final String ACTION_TEST = "test";
 
-    private static String TEMPLATE_ADMIN = "templates/admin.vm";
+    private static final String TEMPLATE_ADMIN = "templates/admin.vm";
 
     private final UserManager userManager;
     private final TemplateRenderer renderer;
@@ -72,7 +74,7 @@ public class AdminServlet extends HttpServlet {
     private final GerritConfiguration configurationManager;
 
     public AdminServlet(final UserManager userManager, final LoginUriProvider loginUriProvider, final TemplateRenderer renderer,
-            final JiraHome jiraHome, final GerritConfiguration configurationManager, final ProjectManager projectManager) {
+                        final JiraHome jiraHome, final GerritConfiguration configurationManager, final ProjectManager projectManager) {
         this.userManager = userManager;
         this.loginUriProvider = loginUriProvider;
         this.renderer = renderer;
@@ -172,7 +174,7 @@ public class AdminServlet extends HttpServlet {
             // We'll store the *path* to the file in ConfigResource, to make it easy to look it
             // up in the future.
             if (log.isDebugEnabled()) {
-                log.debug("---- Saved ssh private key at: " + privateKeyPath.toString() + " ----");
+                log.debug("---- Saved ssh private key at: " + privateKeyPath + " ----");
             }
             configurationManager.setSshPrivateKey(privateKeyPath);
         } else if (configurationManager.getSshPrivateKey() != null) {
@@ -197,11 +199,9 @@ public class AdminServlet extends HttpServlet {
     void performConnectionTest(GerritConfiguration configuration, Map<String, Object> map) {
         map.put("testResult", Boolean.FALSE);
 
-        if(configuration.getPreferRestConnection()) {
-            //TODO: better URL-check
-            //https://toolsqa.com/rest-assured/rest-api-test-using-rest-assured/
-
-            GerritQueryHandlerHttp.Credential credential = new GerritQueryHandlerHttp.Credential(){
+        if (configuration.getPreferRestConnection()) {
+            //future idea? better URL-check
+            GerritQueryHandlerHttp.Credential credential = new GerritQueryHandlerHttp.Credential() {
                 @Override
                 public Principal getUserPrincipal() {
                     return new Principal() {
@@ -210,7 +210,6 @@ public class AdminServlet extends HttpServlet {
                             return configuration.getHttpUsername();
                         }
                     };
-                    //() -> ""; lambdas are tripping up CheckStyle
                 }
 
                 @Override
@@ -231,9 +230,7 @@ public class AdminServlet extends HttpServlet {
                 map.put("testError", e.getMessage());
                 log.error(e.getMessage());
             }
-        }
-        else
-        {
+        } else {
             if (!configuration.isSshValid()) {
                 map.put("testError", "not configured");
                 return;
@@ -243,9 +240,8 @@ public class AdminServlet extends HttpServlet {
             GerritQueryHandler query = new GerritQueryHandler(configuration.getSshHostname(), configuration.getSshPort(), null, auth);
 
             try {
-                //trying to fetch the newest change
-                List<JSONObject> s = query.queryJava("limit:1", false, false, false);
-
+                //try to fetch the newest change
+                query.queryJava("limit:1", false, false, false);
                 map.put("testResult", Boolean.TRUE);
             } catch (IOException | com.sonymobile.tools.gerrit.gerritevents.GerritQueryException e) {
                 e.printStackTrace();
@@ -331,8 +327,7 @@ public class AdminServlet extends HttpServlet {
                 try {
                     privateKeyPath = File.createTempFile(tempFilePrefix, tempFileSuffix, dataDir);
                 } catch (IOException e) {
-                    log.info("---- Cannot create temporary file: " + e.getMessage() + ": " + dataDir
-                            .toString() + tempFilePrefix + tempFileSuffix + " ----");
+                    log.info("---- Cannot create temporary file: " + e.getMessage() + ": " + dataDir + tempFilePrefix + tempFileSuffix + " ----");
                     break;
                 }
 

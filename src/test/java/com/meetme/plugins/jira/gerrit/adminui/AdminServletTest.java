@@ -29,7 +29,7 @@ public class AdminServletTest {
 
     private final String query = "/a/changes/?q=limit%3A1";
 
-    private HashMap<String, Object> map = new HashMap<>();
+    private final HashMap<String, Object> map = new HashMap<>();
 
     private AdminServlet adminServlet;
 
@@ -68,16 +68,16 @@ public class AdminServletTest {
                 return null;
             }
         });
+        setupMockServer();
     }
+
 
     /**
      * Initialise the mock-REST-API, call
      * {@link com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandlerHttp#queryJava(String, boolean, boolean, boolean)}.
      */
-    @Before
     public void setupMockServer() {
         wireMockServer = new WireMockServer(new WireMockConfiguration().port(port));
-        //.usingFilesUnderDirectory("src/test/"));
         wireMockServer.start();
     }
 
@@ -91,6 +91,7 @@ public class AdminServletTest {
 
     /**
      * setup stub for wireMockServer.
+     *
      * @param expectedCode the statuscode
      */
     public void setupStubForRequests(int expectedCode) {
@@ -128,20 +129,20 @@ public class AdminServletTest {
         adminServlet.performConnectionTest(gerritConfiguration, map);
         assertFalse((Boolean) map.get("testResult"));
         assertTrue(((String) map.get("testError")).endsWith("(401)"));
-        System.out.println(map.toString());
+        //System.out.println(map.toString());
 
         setupStubForRequests(404);
         adminServlet.performConnectionTest(gerritConfiguration, map);
         assertFalse((Boolean) map.get("testResult"));
         assertTrue(((String) map.get("testError")).endsWith("(404)"));
-        System.out.println(map.toString());
+        //System.out.println(map.toString());
 
         //testing other response code
         setupStubForRequests(418);
         adminServlet.performConnectionTest(gerritConfiguration, map);
         assertFalse((Boolean) map.get("testResult"));
         assertTrue(((String) map.get("testError")).endsWith("(418)"));
-        System.out.println(map.toString());
+        //System.out.println(map.toString());
     }
 
 
@@ -149,8 +150,7 @@ public class AdminServletTest {
      * Useful for testing against real servers
      */
     //@Test
-    public void testArbitraryServer()
-    {
+    public void testArbitraryServer() {
         //fill out
         final String username = "";
         final String password = "";
@@ -163,10 +163,7 @@ public class AdminServletTest {
 
         adminServlet.performConnectionTest(gerritConfiguration, map);
         System.out.println("Testresult: " + map.get("testResult"));
-
     }
-
-
 
 
 }

@@ -41,8 +41,8 @@ public class IssueTypeOptionsProvider implements WebItemProvider {
 
     public static final String DEFAULT_ISSUE_TYPE = ISSUE_ONLY;
 
-    private VelocityRequestContextFactory requestContextFactory;
-    private JiraAuthenticationContext authenticationContext;
+    private final VelocityRequestContextFactory requestContextFactory;
+    private final JiraAuthenticationContext authenticationContext;
 
     public IssueTypeOptionsProvider(VelocityRequestContextFactory requestContextFactory, JiraAuthenticationContext authenticationContext) {
         this.requestContextFactory = requestContextFactory;

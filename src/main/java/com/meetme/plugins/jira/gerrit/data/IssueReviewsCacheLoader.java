@@ -27,14 +27,17 @@ import javax.annotation.Nonnull;
 public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritChange>> {
     private final Logger log = LoggerFactory.getLogger(IssueReviewsCacheLoader.class);
     private final GerritConfiguration configuration;
+    private final List<Float> avgLoadTime;
 
     public IssueReviewsCacheLoader(GerritConfiguration configuration) {
         this.configuration = configuration;
+        this.avgLoadTime = new ArrayList<>();
     }
 
     @Nonnull
     @Override
     public List<GerritChange> load(@Nonnull String key) {
+
         String query = String.format(Locale.US, configuration.getIssueSearchQuery(), key);
 
         try {
@@ -46,17 +49,17 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
     }
 
     protected List<GerritChange> getReviewsFromGerrit(String searchQuery) throws GerritQueryException {
+        long startTime = System.nanoTime();
+
         List<GerritChange> changes;
         List<JSONObject> reviews = new ArrayList<>();
 
-        if(configuration.getPreferRestConnection())
-        {
+        if (configuration.getPreferRestConnection()) {
             if (!configuration.isHttpValid()) {
-                // return Collections.emptyList();
                 throw new GerritConfiguration.NotConfiguredException("Not configured for HTTP access");
             }
 
-            GerritQueryHandlerHttp.Credential credential = new GerritQueryHandlerHttp.Credential(){
+            GerritQueryHandlerHttp.Credential credential = new GerritQueryHandlerHttp.Credential() {
                 @Override
                 public Principal getUserPrincipal() {
                     return new Principal() {
@@ -65,7 +68,6 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
                             return configuration.getHttpUsername();
                         }
                     };
-                    //() -> ""; lambdas are tripping up CheckStyle
                 }
 
                 @Override
@@ -80,18 +82,13 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-        }
-        else
-        {
+        } else {
             if (!configuration.isSshValid()) {
-                // return Collections.emptyList();
                 throw new GerritConfiguration.NotConfiguredException("Not configured for SSH access");
             }
 
             Authentication auth = new Authentication(configuration.getSshPrivateKey(), configuration.getSshUsername());
             GerritQueryHandler query = new GerritQueryHandler(configuration.getSshHostname(), configuration.getSshPort(), null, auth);
-
 
             try {
                 reviews = query.queryJava(searchQuery, false, true, false);
@@ -117,6 +114,11 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
         }
 
         Collections.sort(changes);
+        long endTime = System.nanoTime();
+        avgLoadTime.add(((float) endTime - (float) startTime) / 1000000f);
+
+        log.error("Average query execution time: " + avgLoadTime.stream().mapToDouble(a -> a).average().getAsDouble() + "ms");
+
         return changes;
     }
 }

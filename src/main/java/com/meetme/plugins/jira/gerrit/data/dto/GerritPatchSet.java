@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 /**
  * full credits to https://github.com/lauyoo46 for his parsing methods
  * {@link com.meetme.plugins.jira.gerrit.data.dto.GerritPatchSet#fromJsonHTTP(JSONObject)} and
@@ -51,10 +52,9 @@ public class GerritPatchSet extends PatchSet {
     }
 
     public GerritPatchSet(JSONObject json, boolean preferRest) {
-        if(!preferRest) {
+        if (!preferRest) {
             fromJson(json);
-        }
-        else {
+        } else {
             fromJsonHTTP(json);
         }
     }
@@ -92,7 +92,7 @@ public class GerritPatchSet extends PatchSet {
         try {
             this.setCreatedOn(sdf.parse(dateCreated));
         } catch (ParseException e) {
-            log.error("Error when trying to format date! " , e);
+            log.error("Error when trying to format date! ", e);
         }
         if (jsonRevision.containsKey("kind")) {
             this.setKind(GerritChangeKind.fromString(GerritJsonEventFactory.getString(jsonRevision, "kind")));

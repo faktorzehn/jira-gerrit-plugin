@@ -66,10 +66,7 @@ public class GerritConfigurationImpl implements GerritConfiguration {
     }
 
     @Override
-    public boolean getPreferRestConnection()
-
-
-    {
+    public boolean getPreferRestConnection() {
         return Boolean.parseBoolean((String) settings.get(FIELD_PREFER_REST_CONNECTION));
     }
 
@@ -174,8 +171,6 @@ public class GerritConfigurationImpl implements GerritConfiguration {
                 && !Strings.isNullOrEmpty(getHttpPassword());
     }
 
-
-
     @Override
     public List<String> getIdsOfKnownGerritProjects() {
         List<String> idsOfKnownGerritProjects = (List) settings.get(FIELD_KNOWN_GERRIT_PROJECTS);
@@ -191,7 +186,7 @@ public class GerritConfigurationImpl implements GerritConfiguration {
     public boolean getUseGerritProjectWhitelist() {
         String useGerritProjectWhitelist = (String) settings.get(FIELD_USE_GERRIT_PROJECT_WHITELIST);
         // Defaults to the behavior without whitelist:
-        return useGerritProjectWhitelist == null ? false : "true".equals(useGerritProjectWhitelist);
+        return useGerritProjectWhitelist != null && "true".equals(useGerritProjectWhitelist);
     }
 
     @Override

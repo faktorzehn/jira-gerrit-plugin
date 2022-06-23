@@ -13,17 +13,15 @@
  */
 package com.meetme.plugins.jira.gerrit.workflow.function;
 
+import com.atlassian.core.user.preferences.Preferences;
+import com.atlassian.jira.user.preferences.UserPreferencesManager;
 import com.meetme.plugins.jira.gerrit.data.GerritConfiguration;
 import com.meetme.plugins.jira.gerrit.data.IssueReviewsManager;
 import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
 import com.meetme.plugins.jira.gerrit.workflow.AbstractWorkflowTest;
-
-import com.atlassian.core.user.preferences.Preferences;
-import com.atlassian.jira.user.preferences.UserPreferencesManager;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.WorkflowException;
 import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -109,7 +107,7 @@ public abstract class ApprovalFunctionTest extends AbstractWorkflowTest {
     /**
      * Test method for {@link ApprovalFunction#execute(Map, Map, PropertySet)}.
      *
-     * @throws WorkflowException
+     * @throws WorkflowException when not ready
      */
     @Test(expected = IllegalStateException.class)
     public void testExecute_notReady() throws WorkflowException {

@@ -32,7 +32,7 @@ public class GerritReviewsIssueSidePanel extends AbstractJiraContextProvider {
     private static final String KEY_CHANGES = "changes";
     private static final String KEY_ERROR = "error";
 
-    private IssueReviewsManager reviewsManager;
+    private final IssueReviewsManager reviewsManager;
 
     public GerritReviewsIssueSidePanel(IssueReviewsManager reviewsManager) {
         super();

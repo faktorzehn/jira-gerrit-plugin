@@ -30,7 +30,7 @@ public class SubtaskReviewsTabPanel extends AbstractIssueTabPanel2 implements Is
     private final IssueReviewsManager reviewsManager;
 
     public SubtaskReviewsTabPanel(GerritConfiguration configuration,
-            IssueReviewsManager reviewsManager) {
+                                  IssueReviewsManager reviewsManager) {
         this.configuration = configuration;
         this.reviewsManager = reviewsManager;
     }

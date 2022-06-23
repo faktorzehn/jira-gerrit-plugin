@@ -31,9 +31,9 @@ import java.util.List;
 
 public class GerritCommand {
     private static final Logger log = LoggerFactory.getLogger(GerritCommand.class);
-    private final static String BASE_COMMAND = "gerrit review"; // !=gerrit query
-    private GerritConfiguration config;
-    private Preferences userPreferences;
+    private final static String BASE_COMMAND = "gerrit review";
+    private final GerritConfiguration config;
+    private final Preferences userPreferences;
 
     public GerritCommand(GerritConfiguration config, Preferences userPreferences) {
         this.config = config;
@@ -57,10 +57,9 @@ public class GerritCommand {
     }
 
     private boolean runCommand(String command) throws IOException {
-        return runCommands(new String[] { command });
+        return runCommands(new String[]{command});
     }
 
-    @SuppressWarnings("deprecation")
     private String getCommand(GerritChange change, String args) {
 
         // TODO: escape args? Or build manually with String reviewType,int reviewScore,etc..?
@@ -124,7 +123,7 @@ public class GerritCommand {
         return auth;
     }
 
-    private boolean runCommand(SshConnection ssh, String command) throws SshException, IOException {
+    private boolean runCommand(SshConnection ssh, String command) throws IOException {
         boolean success;
         ChannelExec channel = null;
 
@@ -163,10 +162,10 @@ public class GerritCommand {
             success = exitStatus == 0;
             log.info("Command exit status: " + exitStatus + ", success=" + success);
         } finally {
-            if(channel!=null && channel.isConnected()) {
+            if (channel != null && channel.isConnected()) {
                 channel.disconnect();
             }
-            if(reader!=null) {
+            if (reader != null) {
                 reader.close();
             }
         }

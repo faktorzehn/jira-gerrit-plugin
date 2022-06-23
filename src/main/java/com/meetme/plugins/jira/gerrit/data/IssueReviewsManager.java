@@ -50,10 +50,10 @@ public interface IssueReviewsManager {
     /**
      * Performs approvals/reviews of all changes.
      *
-     * @param issue the JIRA issue
+     * @param issue   the JIRA issue
      * @param changes the set of Gerrit changes
-     * @param args arguments to add to each approval
-     * @param prefs the {@link Preferences} for the viewing user
+     * @param args    arguments to add to each approval
+     * @param prefs   the {@link Preferences} for the viewing user
      * @return whether the approvals were successful
      * @throws IOException if so
      */

@@ -38,7 +38,7 @@ import static com.meetme.plugins.jira.gerrit.tabpanel.GerritEventKeys.LAST_UPDAT
 
 /**
  * @author Joe Hansche
- *
+ * <p>
  * full credits to https://github.com/lauyoo46 for his parsing methods {@link GerritChange#fromJsonRest(JSONObject)},
  * {@link GerritChange#convertApprovals(JSONObject)} and {@link GerritChange#addApproval(JSONArray, JSONObject, String)}
  * https://github.com/lauyoo46/jira-gerrit-plugin
@@ -70,7 +70,7 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
         } else {
             fromJson(obj);
         }
-        log.debug("Created change " + this.getId() +": "  + this.getUrl());
+        log.debug("Created change " + this.getId() + ": " + this.getUrl());
     }
 
     /**
@@ -93,7 +93,6 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
                 return aNum < bNum ? -1 : 1;
             }
         }
-
         return 0;
     }
 
@@ -125,18 +124,18 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
         if (json.containsKey("owner")) {
             this.setOwner(new Account(json.getJSONObject("owner")));
         }
-        if(json.containsKey("current_revision")) {
+        if (json.containsKey("current_revision")) {
             String revision = GerritJsonEventFactory.getString(json, "current_revision");
             JSONObject jsonRevision = json.getJSONObject("revisions").getJSONObject(revision);
 
-            //modified url conversion, can use some testing
+            //modified url conversion
             String uniqueUrl = jsonRevision.getJSONObject("fetch").getJSONObject("http").getString("url");
             try {
                 URL newUrl = new URL(uniqueUrl);
                 //get url suffix: "refs/changes/19/1987/1" -> "/1987/1"
                 String suffix = jsonRevision.getJSONObject("fetch").getJSONObject("http").getString("ref");
                 for (int i = 0, j = 0; i < suffix.length(); i++) {
-                    if(suffix.charAt(i)=='/' && ++j == 3) {
+                    if (suffix.charAt(i) == '/' && ++j == 3) {
                         suffix = suffix.substring(i);
                     }
                 }
@@ -160,7 +159,7 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
             }
         }
 
-        String dateUpdated = GerritJsonEventFactory.getString(json,"updated");
+        String dateUpdated = GerritJsonEventFactory.getString(json, "updated");
         String dateCreated = GerritJsonEventFactory.getString(json, "created");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
@@ -183,8 +182,7 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
         this.isOpen = stringStatus.equals("NEW");
     }
 
-    private void convertApprovals(JSONObject json)
-    {
+    private void convertApprovals(JSONObject json) {
         if (json.containsKey("labels")) {
 
             ArrayList<String> approvalLabels = new ArrayList<>();
@@ -196,10 +194,10 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
             JSONObject jsonApprovals = json.getJSONObject("labels");
             JSONArray approvals = new JSONArray();
 
-            for (String label: approvalLabels) {
+            for (String label : approvalLabels) {
                 addApproval(approvals, jsonApprovals, label);
             }
-            if(!approvals.isEmpty()) {
+            if (!approvals.isEmpty()) {
                 json.element(GerritEventKeys.APPROVALS, approvals);
             }
         }
@@ -208,7 +206,7 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
     private void addApproval(JSONArray approvals, JSONObject jsonApprovals, String label) {
 
         JSONObject approvalForLabel = new JSONObject();
-        if(jsonApprovals.containsKey(label)) {
+        if (jsonApprovals.containsKey(label)) {
             JSONArray dataForLabelArray = jsonApprovals.getJSONObject(label).getJSONArray("all");
             for (int i = 0; i < dataForLabelArray.size(); ++i) {
                 JSONObject dataForLabelObject = dataForLabelArray.getJSONObject(i);
@@ -238,10 +236,6 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
 
     public GerritPatchSet getPatchSet() {
         return patchSet;
-    }
-
-    public String getStatusString() {
-        return status;
     }
 
     public boolean isOpen() {
