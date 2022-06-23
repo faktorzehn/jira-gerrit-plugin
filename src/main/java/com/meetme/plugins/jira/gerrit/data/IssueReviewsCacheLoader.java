@@ -27,11 +27,11 @@ import javax.annotation.Nonnull;
 public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritChange>> {
     private final Logger log = LoggerFactory.getLogger(IssueReviewsCacheLoader.class);
     private final GerritConfiguration configuration;
-    private final List<Float> avgLoadTime;
+    //private final List<Float> avgLoadTime;
 
     public IssueReviewsCacheLoader(GerritConfiguration configuration) {
         this.configuration = configuration;
-        this.avgLoadTime = new ArrayList<>();
+        //this.avgLoadTime = new ArrayList<>();
     }
 
     @Nonnull
@@ -49,7 +49,7 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
     }
 
     protected List<GerritChange> getReviewsFromGerrit(String searchQuery) throws GerritQueryException {
-        long startTime = System.nanoTime();
+        //long startTime = System.nanoTime();
 
         List<GerritChange> changes;
         List<JSONObject> reviews = new ArrayList<>();
@@ -114,10 +114,9 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
         }
 
         Collections.sort(changes);
-        long endTime = System.nanoTime();
-        avgLoadTime.add(((float) endTime - (float) startTime) / 1000000f);
-
-        log.error("Average query execution time: " + avgLoadTime.stream().mapToDouble(a -> a).average().getAsDouble() + "ms");
+        //long endTime = System.nanoTime();
+        //avgLoadTime.add(((float) endTime - (float) startTime) / 1000000f);
+        //log.debug("Average query execution time: " + avgLoadTime.stream().mapToDouble(a -> a).average().getAsDouble() + "ms");
 
         return changes;
     }
