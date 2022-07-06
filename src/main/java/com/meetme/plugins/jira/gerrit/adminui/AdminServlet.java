@@ -218,7 +218,6 @@ public class AdminServlet extends HttpServlet {
                 }
             };
 
-
             GerritQueryHandlerHttp query = new GerritQueryHandlerHttp(configuration.getHttpBaseUrl().toString(), credential, "");
 
             try {
