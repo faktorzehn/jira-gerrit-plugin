@@ -1,4 +1,4 @@
-JIRA-Gerrit Rest-Api integration plugin
+JIRA-Gerrit Rest-Api integration plugin [![CI](https://github.com/faktorzehn/jira-gerrit-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/faktorzehn/jira-gerrit-plugin/actions/workflows/build.yml)
 ==============================
 &copy; Copyright 2012 MeetMe, Inc.
 Maintainer: Joe Hansche <jhansche@meetme.com>
