@@ -27,8 +27,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install atlassian-plugin-sdk
 
-      - name: clean
-        run: atlas-clean
+      - name: initialize
+        run: atlas-mvn initialize
 
       - name: build
         run: atlas-package
