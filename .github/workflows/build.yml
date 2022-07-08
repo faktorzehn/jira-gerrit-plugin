@@ -1,0 +1,38 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  install_jira_test_build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install jira-plugin-sdk
+        run: |
+          sudo sh -c 'echo "deb https://packages.atlassian.com/debian/atlassian-sdk-deb/ stable contrib" >>/etc/apt/sources.list'
+          wget https://packages.atlassian.com/api/gpg/key/public    
+          sudo apt-key add public   
+          sudo apt-get update
+          sudo apt-get install atlassian-plugin-sdk
+          
+      - name: build
+        run: atlas-package
+         
+      - name: Upload action artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: package artifacts
+          path: | 
+              target/*.jar   
