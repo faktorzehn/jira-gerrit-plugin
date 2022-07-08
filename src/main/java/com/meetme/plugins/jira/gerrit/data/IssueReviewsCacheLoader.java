@@ -4,6 +4,7 @@ import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
 
 import com.atlassian.cache.CacheException;
 import com.atlassian.cache.CacheLoader;
+import com.sonymobile.tools.gerrit.gerritevents.Credential;
 import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandler;
 import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandlerHttp;
@@ -60,7 +61,7 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
                 throw new GerritConfiguration.NotConfiguredException("Not configured for HTTP access");
             }
 
-            GerritQueryHandlerHttp.Credential credential = new GerritQueryHandlerHttp.Credential() {
+            Credential credential = new Credential() {
                 @Override
                 public Principal getUserPrincipal() {
                     return new Principal() {

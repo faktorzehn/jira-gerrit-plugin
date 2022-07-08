@@ -23,6 +23,7 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.sonymobile.tools.gerrit.gerritevents.Credential;
 import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandler;
 import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandlerHttp;
 import com.sonymobile.tools.gerrit.gerritevents.ssh.Authentication;
@@ -205,7 +206,7 @@ public class AdminServlet extends HttpServlet {
 
         if (configuration.getPreferRestConnection()) {
             //future idea? better URL-check
-            GerritQueryHandlerHttp.Credential credential = new GerritQueryHandlerHttp.Credential() {
+            Credential credential = new Credential() {
                 @Override
                 public Principal getUserPrincipal() {
                     return new Principal() {
