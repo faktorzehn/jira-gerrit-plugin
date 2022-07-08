@@ -26,7 +26,10 @@ jobs:
           sudo apt-key add public   
           sudo apt-get update
           sudo apt-get install atlassian-plugin-sdk
-          
+
+      - name: clean
+        run: atlas-clean
+
       - name: build
         run: atlas-package
          
