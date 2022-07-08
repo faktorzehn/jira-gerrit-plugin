@@ -221,7 +221,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.3.1</version>
@@ -233,7 +233,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
             <!--Code quality-->
             <plugin>   <!--requires Maven >=3.2.5-->
                 <groupId>com.github.spotbugs</groupId>

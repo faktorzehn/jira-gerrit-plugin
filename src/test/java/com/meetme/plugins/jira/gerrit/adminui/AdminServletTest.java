@@ -19,11 +19,11 @@ import static org.junit.Assert.assertTrue;
 
 public class AdminServletTest {
 
+    public final static int port = 8020;
+
     private final String username = "user123";
 
     private final String password = "password123";
-
-    private final int port = 8765;
 
     private final String url = "http://localhost:" + port;
 
@@ -164,6 +164,5 @@ public class AdminServletTest {
         adminServlet.performConnectionTest(gerritConfiguration, map);
         System.out.println("Testresult: " + map.get("testResult"));
     }
-
 
 }
