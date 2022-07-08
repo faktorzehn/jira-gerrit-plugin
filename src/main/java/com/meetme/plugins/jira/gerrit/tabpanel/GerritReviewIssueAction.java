@@ -40,7 +40,7 @@ public class GerritReviewIssueAction extends AbstractIssueAction implements Issu
 
     @Override
     @SuppressWarnings("unchecked")
-    protected void populateVelocityParams(@SuppressWarnings("rawtypes") Map params) {
+    protected void populateVelocityParams(Map params) {
         params.putAll(EasyMap.build("change", change,
                 "formatLastUpdated", formatLastUpdated(),
                 "isoLastUpdated", isoFormatLastUpdated(),

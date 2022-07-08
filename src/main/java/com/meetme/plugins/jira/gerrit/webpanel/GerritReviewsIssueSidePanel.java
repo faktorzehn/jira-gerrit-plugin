@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("unchecked")
 public class GerritReviewsIssueSidePanel extends AbstractJiraContextProvider {
     private static final String KEY_ISSUE = "issue";
     private static final String KEY_CHANGES = "changes";

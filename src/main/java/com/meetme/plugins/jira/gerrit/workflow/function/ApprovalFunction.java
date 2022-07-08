@@ -78,7 +78,7 @@ public class ApprovalFunction extends AbstractJiraFunctionProvider {
     }
 
     @Override
-    public void execute(@SuppressWarnings("rawtypes") Map transientVars, @SuppressWarnings("rawtypes") Map args, PropertySet ps)
+    public void execute(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
         if (!isConfigurationReady()) {
             throw new IllegalStateException("Configure the Gerrit integration from the Administration panel first.");

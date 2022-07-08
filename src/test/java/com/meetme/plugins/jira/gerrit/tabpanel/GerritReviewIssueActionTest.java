@@ -178,7 +178,6 @@ public class GerritReviewIssueActionTest {
         assertEquals(expected, velocityParams);
     }
 
-    @SuppressWarnings("unchecked")
     private Map<String, Object> setUpExpectedVelocityParams() {
         return EasyMap.build("change", change,
                 "formatLastUpdated", TEST_FORMATTED_LAST_UPDATED,

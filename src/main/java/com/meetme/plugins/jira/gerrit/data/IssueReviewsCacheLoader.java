@@ -48,6 +48,7 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
         }
     }
 
+    @SuppressWarnings("CommentedOutCode") //optional benchmarking
     protected List<GerritChange> getReviewsFromGerrit(String searchQuery) throws GerritQueryException {
         //long startTime = System.nanoTime();
 

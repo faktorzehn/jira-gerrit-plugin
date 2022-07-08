@@ -47,7 +47,7 @@ public class SubtaskReviewsIssueAction extends AbstractIssueAction implements Is
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void populateVelocityParams(@SuppressWarnings("rawtypes") Map velocityParams) {
+    protected void populateVelocityParams(Map velocityParams) {
         final int openReviews = changes == null ? 0 : NoOpenReviews.countReviewStatus(changes, true);
         final int closedReviews = changes == null ? 0 : NoOpenReviews.countReviewStatus(changes, false);
 

@@ -135,7 +135,6 @@ public class AdminServlet extends HttpServlet {
         return map;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         Map<String, Object> map;
