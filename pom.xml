@@ -136,11 +136,14 @@
             <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
-        <dependency>
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+        <!--dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.25</version>
-        </dependency>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.2</version>
+            <scope>provided</scope>
+        </-dependency-->
+
         <!-- Project dependencies -->
         <!-- https://mvnrepository.com/artifact/com.sonymobile.tools.gerrit/gerrit-events (local)-->
         <dependency>
@@ -221,7 +224,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.3.1</version>
@@ -233,7 +236,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
             <!--Code quality-->
             <plugin>   <!--requires Maven >=3.2.5-->
                 <groupId>com.github.spotbugs</groupId>
