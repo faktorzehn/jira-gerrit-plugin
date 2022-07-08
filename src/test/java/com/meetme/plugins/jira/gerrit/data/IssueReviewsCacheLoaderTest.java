@@ -151,8 +151,8 @@ public class IssueReviewsCacheLoaderTest {
             }
 
             @Override
-            public boolean isSshValid() {
-                return false;
+            public boolean isSshInvalid() {
+                return true;
             }
 
             @Override
@@ -342,8 +342,8 @@ public class IssueReviewsCacheLoaderTest {
             }
 
             @Override
-            public boolean isSshValid() {
-                return false;
+            public boolean isSshInvalid() {
+                return true;
             }
 
             @Override

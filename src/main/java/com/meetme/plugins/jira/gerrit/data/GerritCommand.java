@@ -13,13 +13,14 @@
  */
 package com.meetme.plugins.jira.gerrit.data;
 
+import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
+
 import com.atlassian.core.user.preferences.Preferences;
 import com.jcraft.jsch.ChannelExec;
-import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
 import com.sonymobile.tools.gerrit.gerritevents.ssh.Authentication;
 import com.sonymobile.tools.gerrit.gerritevents.ssh.SshConnection;
 import com.sonymobile.tools.gerrit.gerritevents.ssh.SshConnectionFactory;
-import com.sonymobile.tools.gerrit.gerritevents.ssh.SshException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

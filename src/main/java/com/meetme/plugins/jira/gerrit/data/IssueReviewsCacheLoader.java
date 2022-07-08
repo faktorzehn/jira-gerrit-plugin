@@ -83,7 +83,7 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
                 e.printStackTrace();
             }
         } else {
-            if (!configuration.isSshValid()) {
+            if (configuration.isSshInvalid()) {
                 throw new GerritConfiguration.NotConfiguredException("Not configured for SSH access");
             }
 

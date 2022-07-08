@@ -84,7 +84,7 @@ public interface GerritConfiguration {
 
     void setShowEmptyPanel(boolean show);
 
-    boolean isSshValid();
+    boolean isSshInvalid();
 
     boolean isHttpValid();
 

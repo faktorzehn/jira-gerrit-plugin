@@ -17,8 +17,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
-import net.sf.json.JSONObject;
 
 import java.io.File;
 import java.net.URI;
@@ -157,11 +155,9 @@ public class GerritConfigurationImpl implements GerritConfiguration {
     }
 
     @Override
-    public boolean isSshValid() {
-        return !Strings.isNullOrEmpty(getSshHostname())
-                && !Strings.isNullOrEmpty(getSshUsername())
-                && getSshPrivateKey() != null
-                && getSshPrivateKey().exists();
+    public boolean isSshInvalid() {
+        return Strings.isNullOrEmpty(getSshHostname()) || Strings.isNullOrEmpty(
+                getSshUsername()) || getSshPrivateKey() == null || !getSshPrivateKey().exists();
     }
 
     @Override

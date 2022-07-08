@@ -13,6 +13,8 @@
  */
 package com.meetme.plugins.jira.gerrit.adminui;
 
+import com.meetme.plugins.jira.gerrit.data.GerritConfiguration;
+
 import com.atlassian.jira.config.util.JiraHome;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
@@ -21,11 +23,10 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.meetme.plugins.jira.gerrit.data.GerritConfiguration;
 import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandler;
 import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandlerHttp;
 import com.sonymobile.tools.gerrit.gerritevents.ssh.Authentication;
-import net.sf.json.JSONObject;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
@@ -36,18 +37,22 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.security.Principal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * the admin configuration panel. It is described in detail
@@ -230,7 +235,7 @@ public class AdminServlet extends HttpServlet {
                 log.error(e.getMessage());
             }
         } else {
-            if (!configuration.isSshValid()) {
+            if (configuration.isSshInvalid()) {
                 map.put("testError", "not configured");
                 return;
             }
