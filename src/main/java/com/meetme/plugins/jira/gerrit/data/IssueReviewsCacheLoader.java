@@ -48,6 +48,7 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
         }
     }
 
+    @SuppressWarnings("CommentedOutCode") //optional benchmarking
     protected List<GerritChange> getReviewsFromGerrit(String searchQuery) throws GerritQueryException {
         //long startTime = System.nanoTime();
 
@@ -83,7 +84,7 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
                 e.printStackTrace();
             }
         } else {
-            if (!configuration.isSshValid()) {
+            if (configuration.isSshInvalid()) {
                 throw new GerritConfiguration.NotConfiguredException("Not configured for SSH access");
             }
 

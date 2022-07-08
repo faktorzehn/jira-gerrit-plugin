@@ -36,7 +36,6 @@ public class ApprovalScoreConditionFactoryImpl extends AbstractWorkflowPluginFac
     private static final int DEFAULT_TARGET = 0;
     private static final String DEFAULT_LABEL = "Code-Review";
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, ?> getDescriptorParams(Map<String, Object> conditionParams) {
         if (conditionParams != null && conditionParams.containsKey(ApprovalScore.KEY_NEGATIVE)

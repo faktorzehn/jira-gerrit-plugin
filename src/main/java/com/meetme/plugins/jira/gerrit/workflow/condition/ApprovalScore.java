@@ -54,7 +54,7 @@ public class ApprovalScore extends AbstractJiraCondition {
     }
 
     @Override
-    public boolean passesCondition(@SuppressWarnings("rawtypes") Map transientVars, @SuppressWarnings("rawtypes") Map args, PropertySet ps)
+    public boolean passesCondition(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
         Issue issue = getIssue(transientVars);
         List<GerritChange> reviews;

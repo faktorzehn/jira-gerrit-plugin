@@ -174,6 +174,7 @@ public class SubtaskReviewsTabPanelTest {
      * Test method for {@link SubtaskReviewsTabPanel#isConfigurationReady()} to indicate
      * Configuration is not ready if certain conditions are not met.
      */
+    @SuppressWarnings("JavadocReference")
     @Test
     public void testConfigurationNotReady() {
         SubtaskReviewsTabPanel obj = new SubtaskReviewsTabPanel(null, null);
