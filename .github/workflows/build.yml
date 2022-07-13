@@ -1,8 +1,5 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
@@ -11,7 +8,9 @@ on:
     branches: [ "master" ]
 
   # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  #workflow_dispatch:
+  #  tags:
+  #    description: 'Test for release'
 
 jobs:
   install_jira_test_build:
@@ -19,23 +18,27 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Install jira-plugin-sdk
+      - name: Install jira-plugin-sdk 6.3.21
         run: |
           sudo sh -c 'echo "deb https://packages.atlassian.com/debian/atlassian-sdk-deb/ stable contrib" >>/etc/apt/sources.list'
           wget https://packages.atlassian.com/api/gpg/key/public    
           sudo apt-key add public   
           sudo apt-get update
-          sudo apt-get install atlassian-plugin-sdk
+          sudo apt-get install atlassian-plugin-sdk=6.3.12
 
-      - name: install gerrit-events
+      - name: clean
+        run: atlas-mvn clean -U
+
+      - name: install gerrit-events-2.20.1-SNAPSHOT.jar
         run: atlas-mvn install:install-file -Dfile="./local-maven-repo/gerrit-events-2.20.1-SNAPSHOT.jar" -DgroupId="com.sonymobile.tools.gerrit" -DartifactId="gerrit-events" -Dversion="2.20.1-SNAPSHOT" -Dpackaging="jar"
 
       - name: build
-        run: atlas-package
+        run: atlas-mvn package
          
       - name: Upload action artifacts
         uses: actions/upload-artifact@master
         with:
-          name: package artifacts
+          name: latest build
           path: | 
-              target/*.jar   
+              target/*.jar
+          retention-days: 90

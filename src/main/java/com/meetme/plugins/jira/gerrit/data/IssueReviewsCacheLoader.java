@@ -26,7 +26,7 @@ import java.util.Locale;
 import javax.annotation.Nonnull;
 
 public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritChange>> {
-    private final Logger log = LoggerFactory.getLogger(IssueReviewsCacheLoader.class);
+    //private final Logger log = LoggerFactory.getLogger(IssueReviewsCacheLoader.class);
     private final GerritConfiguration configuration;
     //private final List<Float> avgLoadTime;
 
@@ -44,7 +44,7 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
         try {
             return getReviewsFromGerrit(query);
         } catch (GerritQueryException e) {
-            log.error("Error querying for issues", e);
+            //log.error("Error querying for issues", e);
             throw new CacheException("Error querying for issues: " + e.getMessage(), e);
         }
     }
@@ -106,10 +106,10 @@ public class IssueReviewsCacheLoader implements CacheLoader<String, List<GerritC
         for (JSONObject obj : reviews) {
             if (obj.has("type") && "stats".equalsIgnoreCase(obj.getString("type"))) {
                 // The final JSON object in the query results is just a set of statistics
-                if (log.isDebugEnabled()) {
-                    log.trace("Results from QUERY: " + obj.optString("rowCount", "(unknown)") + " rows; runtime: "
-                            + obj.optString("runTimeMilliseconds", "(unknown)") + " ms");
-                }
+                //if (log.isDebugEnabled()) {
+                //    log.trace("Results from QUERY: " + obj.optString("rowCount", "(unknown)") + " rows; runtime: "
+                //            + obj.optString("runTimeMilliseconds", "(unknown)") + " ms");
+                //}
                 continue;
             }
             changes.add(new GerritChange(obj, configuration.getPreferRestConnection()));
