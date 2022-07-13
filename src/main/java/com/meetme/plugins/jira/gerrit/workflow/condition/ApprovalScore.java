@@ -21,7 +21,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.workflow.condition.AbstractJiraCondition;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.WorkflowException;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,14 +47,14 @@ public class ApprovalScore extends AbstractJiraCondition {
     public static final String KEY_TARGET = "target";
     public static final String KEY_LABEL = "label";
 
-    private IssueReviewsManager reviewsManager;
+    private final IssueReviewsManager reviewsManager;
 
     public ApprovalScore(final IssueReviewsManager reviewsManager) {
         this.reviewsManager = reviewsManager;
     }
 
     @Override
-    public boolean passesCondition(@SuppressWarnings("rawtypes") Map transientVars, @SuppressWarnings("rawtypes") Map args, PropertySet ps)
+    public boolean passesCondition(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
         Issue issue = getIssue(transientVars);
         List<GerritChange> reviews;
@@ -119,8 +119,8 @@ public class ApprovalScore extends AbstractJiraCondition {
     /**
      * Compare two scores using the provided {@link ComparisonOperator}
      *
-     * @param oper the comparison operator
-     * @param score the score that is being compared
+     * @param oper   the comparison operator
+     * @param score  the score that is being compared
      * @param target the target score against which {@code score} is being compared
      * @return the result of the comparison
      */
@@ -148,12 +148,12 @@ public class ApprovalScore extends AbstractJiraCondition {
      *
      * @author Joe Hansche
      */
-    public static enum ComparisonOperator {
+    public enum ComparisonOperator {
         LESS_THAN("<"), LESS_OR_EQUAL("<="), EQUAL_TO("=="), GREATER_OR_EQUAL(">="), GREATER_THAN(">");
 
         private final String display;
 
-        private ComparisonOperator(final String display) {
+        ComparisonOperator(final String display) {
             this.display = display;
         }
 

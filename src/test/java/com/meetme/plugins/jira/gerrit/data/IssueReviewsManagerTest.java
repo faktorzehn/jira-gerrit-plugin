@@ -1,13 +1,11 @@
 package com.meetme.plugins.jira.gerrit.data;
 
-import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
-
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheLoader;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
-
+import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

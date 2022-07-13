@@ -19,7 +19,7 @@ import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
 
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.plugin.issuetabpanel.*;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +30,7 @@ public class SubtaskReviewsTabPanel extends AbstractIssueTabPanel2 implements Is
     private final IssueReviewsManager reviewsManager;
 
     public SubtaskReviewsTabPanel(GerritConfiguration configuration,
-            IssueReviewsManager reviewsManager) {
+                                  IssueReviewsManager reviewsManager) {
         this.configuration = configuration;
         this.reviewsManager = reviewsManager;
     }

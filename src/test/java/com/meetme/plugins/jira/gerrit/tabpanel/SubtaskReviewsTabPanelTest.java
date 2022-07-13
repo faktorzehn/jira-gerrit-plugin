@@ -13,14 +13,12 @@
  */
 package com.meetme.plugins.jira.gerrit.tabpanel;
 
-import com.meetme.plugins.jira.gerrit.data.GerritConfiguration;
-import com.meetme.plugins.jira.gerrit.data.IssueReviewsManager;
-
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.plugin.issuetabpanel.IssueAction;
 import com.atlassian.jira.user.ApplicationUser;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
-
+import com.meetme.plugins.jira.gerrit.data.GerritConfiguration;
+import com.meetme.plugins.jira.gerrit.data.IssueReviewsManager;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -176,6 +174,7 @@ public class SubtaskReviewsTabPanelTest {
      * Test method for {@link SubtaskReviewsTabPanel#isConfigurationReady()} to indicate
      * Configuration is not ready if certain conditions are not met.
      */
+    @SuppressWarnings("JavadocReference")
     @Test
     public void testConfigurationNotReady() {
         SubtaskReviewsTabPanel obj = new SubtaskReviewsTabPanel(null, null);

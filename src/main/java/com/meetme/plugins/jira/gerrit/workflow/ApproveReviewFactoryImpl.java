@@ -32,7 +32,6 @@ public class ApproveReviewFactoryImpl extends AbstractWorkflowPluginFactory impl
 
     // OR: [args] and let the admin fill it out?
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, ?> getDescriptorParams(Map<String, Object> params) {
         if (params != null && params.containsKey(ApprovalFunction.KEY_CMD_ARGS)) {

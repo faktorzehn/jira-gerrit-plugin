@@ -39,8 +39,8 @@ public class IssueStatusOptionsProvider implements WebItemProvider {
     private static final String STATUS_ALL = "All";
     static final String DEFAULT_STATUS = STATUS_OPEN;
 
-    private VelocityRequestContextFactory requestContextFactory;
-    private JiraAuthenticationContext authenticationContext;
+    private final VelocityRequestContextFactory requestContextFactory;
+    private final JiraAuthenticationContext authenticationContext;
 
     public IssueStatusOptionsProvider(VelocityRequestContextFactory requestContextFactory, JiraAuthenticationContext authenticationContext) {
         this.requestContextFactory = requestContextFactory;

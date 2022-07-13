@@ -32,6 +32,7 @@ public class GerritConfigurationImpl implements GerritConfiguration {
     private static final String PLUGIN_STORAGE_KEY = "com.meetme.plugins.jira.gerrit.data";
     private final PluginSettings settings;
 
+
     public GerritConfigurationImpl(PluginSettingsFactory pluginSettingsFactory) {
         this.settings = pluginSettingsFactory.createSettingsForKey(PLUGIN_STORAGE_KEY);
     }
@@ -63,8 +64,18 @@ public class GerritConfigurationImpl implements GerritConfiguration {
     }
 
     @Override
+    public boolean getPreferRestConnection() {
+        return Boolean.parseBoolean((String) settings.get(FIELD_PREFER_REST_CONNECTION));
+    }
+
+    @Override
     public void setHttpUsername(String httpUsername) {
         settings.put(FIELD_HTTP_USERNAME, httpUsername);
+    }
+
+    @Override
+    public void setPreferRestConnection(boolean preferRestConnection) {
+        settings.put(FIELD_PREFER_REST_CONNECTION, String.valueOf(preferRestConnection));
     }
 
     @Override
@@ -144,11 +155,16 @@ public class GerritConfigurationImpl implements GerritConfiguration {
     }
 
     @Override
-    public boolean isSshValid() {
-        return !Strings.isNullOrEmpty(getSshHostname())
-                && !Strings.isNullOrEmpty(getSshUsername())
-                && getSshPrivateKey() != null
-                && getSshPrivateKey().exists();
+    public boolean isSshInvalid() {
+        return Strings.isNullOrEmpty(getSshHostname()) || Strings.isNullOrEmpty(
+                getSshUsername()) || getSshPrivateKey() == null || !getSshPrivateKey().exists();
+    }
+
+    @Override
+    public boolean isHttpValid() {
+        return !Strings.isNullOrEmpty(String.valueOf(getHttpBaseUrl()))
+                && !Strings.isNullOrEmpty(getHttpUsername())
+                && !Strings.isNullOrEmpty(getHttpPassword());
     }
 
     @Override
@@ -166,7 +182,7 @@ public class GerritConfigurationImpl implements GerritConfiguration {
     public boolean getUseGerritProjectWhitelist() {
         String useGerritProjectWhitelist = (String) settings.get(FIELD_USE_GERRIT_PROJECT_WHITELIST);
         // Defaults to the behavior without whitelist:
-        return useGerritProjectWhitelist == null ? false : "true".equals(useGerritProjectWhitelist);
+        return "true".equals(useGerritProjectWhitelist);
     }
 
     @Override

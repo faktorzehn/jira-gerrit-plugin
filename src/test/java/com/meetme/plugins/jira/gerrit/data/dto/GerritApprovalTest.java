@@ -14,9 +14,7 @@
 package com.meetme.plugins.jira.gerrit.data.dto;
 
 import com.atlassian.jira.user.ApplicationUser;
-
 import net.sf.json.JSONObject;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,14 +49,14 @@ public class GerritApprovalTest {
         BASE_TEST.clear();
     }
 
-    private static void setUpJson(JSONObject obj) {
+    private void setUpJson(JSONObject obj) {
         JSONObject by = new JSONObject();
         by.element("name", EXPECTED_NAME).element("email", EXPECTED_EMAIL);
         obj.element("by", by);
     }
 
     private static void assertFull(GerritApproval obj) {
-        assertEquals(EXPECTED_NAME, obj.getBy());
+        assertEquals(EXPECTED_NAME, obj.getByName());
         assertEquals(EXPECTED_EMAIL, obj.getByEmail());
         assertEquals(EXPECTED_TYPE, obj.getType());
         assertEquals(EXPECTED_VALUE, obj.getValue());
@@ -105,7 +103,7 @@ public class GerritApprovalTest {
 
         GerritApproval obj = new GerritApproval(BASE_TEST);
         assertNull(obj.getByEmail());
-        assertEquals(EXPECTED_NAME, obj.getBy());
+        assertEquals(EXPECTED_NAME, obj.getByName());
     }
 
     @Test
@@ -115,7 +113,7 @@ public class GerritApprovalTest {
         BASE_TEST.element("by", by);
 
         GerritApproval obj = new GerritApproval(BASE_TEST);
-        assertNull(obj.getBy());
+        assertNull(obj.getByName());
         assertEquals(EXPECTED_EMAIL, obj.getByEmail());
     }
 

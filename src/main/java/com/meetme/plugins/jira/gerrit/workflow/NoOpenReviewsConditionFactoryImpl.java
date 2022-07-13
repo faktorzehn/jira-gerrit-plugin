@@ -25,7 +25,6 @@ import java.util.Map;
 
 public class NoOpenReviewsConditionFactoryImpl extends AbstractWorkflowPluginFactory implements WorkflowPluginConditionFactory {
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, ?> getDescriptorParams(Map<String, Object> conditionParams) {
         if (conditionParams != null && conditionParams.containsKey(NoOpenReviews.KEY_REVERSED)) {

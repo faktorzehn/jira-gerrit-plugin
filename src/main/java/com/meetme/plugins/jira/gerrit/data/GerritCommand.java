@@ -17,10 +17,9 @@ import com.meetme.plugins.jira.gerrit.data.dto.GerritChange;
 
 import com.atlassian.core.user.preferences.Preferences;
 import com.jcraft.jsch.ChannelExec;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.Authentication;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.SshConnection;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.SshConnectionFactory;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.SshException;
+import com.sonymobile.tools.gerrit.gerritevents.ssh.Authentication;
+import com.sonymobile.tools.gerrit.gerritevents.ssh.SshConnection;
+import com.sonymobile.tools.gerrit.gerritevents.ssh.SshConnectionFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +33,8 @@ import java.util.List;
 public class GerritCommand {
     private static final Logger log = LoggerFactory.getLogger(GerritCommand.class);
     private final static String BASE_COMMAND = "gerrit review";
-    private GerritConfiguration config;
-    private Preferences userPreferences;
+    private final GerritConfiguration config;
+    private final Preferences userPreferences;
 
     public GerritCommand(GerritConfiguration config, Preferences userPreferences) {
         this.config = config;
@@ -59,16 +58,16 @@ public class GerritCommand {
     }
 
     private boolean runCommand(String command) throws IOException {
-        return runCommands(new String[] { command });
+        return runCommands(new String[]{command});
     }
 
-    @SuppressWarnings("deprecation")
     private String getCommand(GerritChange change, String args) {
 
         // TODO: escape args? Or build manually with String reviewType,int reviewScore,etc..?
         return String.format("%s %s,%s %s", BASE_COMMAND, change.getNumber(), change.getPatchSet().getNumber(), args);
     }
 
+    //Rest support not needed, unused method
     private boolean runCommands(String[] commands) throws IOException {
         boolean success = true;
         SshConnection ssh = null;
@@ -125,21 +124,20 @@ public class GerritCommand {
         return auth;
     }
 
-    private boolean runCommand(SshConnection ssh, String command) throws SshException, IOException {
-        boolean success = false;
+    private boolean runCommand(SshConnection ssh, String command) throws IOException {
+        boolean success;
         ChannelExec channel = null;
 
         log.info("Running command: " + command);
 
+        BufferedReader reader = null;
+
         try {
             channel = ssh.executeCommandChannel(command);
 
-            BufferedReader reader;
-            String incomingLine = null;
+            String incomingLine;
 
-            InputStreamReader err = new InputStreamReader(channel.getErrStream());
             InputStreamReader out = new InputStreamReader(channel.getInputStream());
-
             reader = new BufferedReader(out);
 
             while ((incomingLine = reader.readLine()) != null) {
@@ -149,6 +147,8 @@ public class GerritCommand {
             }
 
             reader.close();
+
+            InputStreamReader err = new InputStreamReader(channel.getErrStream());
             reader = new BufferedReader(err);
 
             while ((incomingLine = reader.readLine()) != null) {
@@ -156,16 +156,20 @@ public class GerritCommand {
                 // But we can get the response and return it if we need to
                 log.warn("Error: " + incomingLine);
             }
-
+            err.close();
             reader.close();
 
             int exitStatus = channel.getExitStatus();
             success = exitStatus == 0;
             log.info("Command exit status: " + exitStatus + ", success=" + success);
         } finally {
-            channel.disconnect();
+            if (channel != null && channel.isConnected()) {
+                channel.disconnect();
+            }
+            if (reader != null) {
+                reader.close();
+            }
         }
-
         return success;
     }
 }

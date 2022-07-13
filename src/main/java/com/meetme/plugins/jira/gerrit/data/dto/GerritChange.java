@@ -15,18 +15,41 @@ package com.meetme.plugins.jira.gerrit.data.dto;
 
 import com.meetme.plugins.jira.gerrit.tabpanel.GerritEventKeys;
 
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.dto.attr.Change;
+import com.sonymobile.tools.gerrit.gerritevents.GerritJsonEventFactory;
+import com.sonymobile.tools.gerrit.gerritevents.dto.GerritChangeStatus;
+import com.sonymobile.tools.gerrit.gerritevents.dto.attr.Account;
+import com.sonymobile.tools.gerrit.gerritevents.dto.attr.Change;
 
+import com.sonymobile.tools.gerrit.gerritevents.dto.rest.Topic;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+
+import javax.validation.constraints.NotNull;
 
 import static com.meetme.plugins.jira.gerrit.tabpanel.GerritEventKeys.LAST_UPDATED;
 
 /**
  * @author Joe Hansche
+ * <p>
+ * full credits to https://github.com/lauyoo46 for his parsing methods {@link GerritChange#fromJsonRest(JSONObject)},
+ * {@link GerritChange#convertApprovals(JSONObject)} and {@link GerritChange#addApproval(JSONArray, JSONObject, String)}
+ * https://github.com/lauyoo46/jira-gerrit-plugin
  */
 public class GerritChange extends Change implements Comparable<GerritChange> {
+
+    private static final Logger log = LoggerFactory.getLogger(GerritPatchSet.class);
+
+    private final String URL_PREFIX = "https://";
 
     private Date lastUpdated;
 
@@ -36,12 +59,20 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
 
     private String status;
 
+    private boolean preferRest;
+
     public GerritChange() {
         super();
     }
 
-    public GerritChange(JSONObject obj) {
-        super(obj);
+    public GerritChange(JSONObject obj, boolean preferRest) {
+        this.preferRest = preferRest;
+        if (preferRest) {
+            fromJsonRest(obj);
+        } else {
+            fromJson(obj);
+        }
+        log.debug("Created change " + this.getId() + ": " + this.getUrl());
     }
 
     /**
@@ -64,7 +95,6 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
                 return aNum < bNum ? -1 : 1;
             }
         }
-
         return 0;
     }
 
@@ -85,16 +115,129 @@ public class GerritChange extends Change implements Comparable<GerritChange> {
         this.isOpen = json.getBoolean(GerritEventKeys.OPEN);
     }
 
+    public void fromJsonRest(JSONObject json) {
+        this.setProject(GerritJsonEventFactory.getString(json, "project"));
+        this.setBranch(GerritJsonEventFactory.getString(json, "branch"));
+        this.setId(GerritJsonEventFactory.getString(json, "change_id"));
+        this.setNumber(GerritJsonEventFactory.getString(json, "_number"));
+        this.setSubject(GerritJsonEventFactory.getString(json, "subject"));
+        this.setWip(GerritJsonEventFactory.getBoolean(json, "wip", false));
+        this.setPrivate(GerritJsonEventFactory.getBoolean(json, "private", false));
+        if (json.containsKey("owner")) {
+            this.setOwner(new Account(json.getJSONObject("owner")));
+        }
+        if (json.containsKey("current_revision")) {
+            String revision = GerritJsonEventFactory.getString(json, "current_revision");
+            JSONObject jsonRevision = json.getJSONObject("revisions").getJSONObject(revision);
+
+            //modified url conversion
+            String uniqueUrl = jsonRevision.getJSONObject("fetch").getJSONObject("http").getString("url");
+            try {
+                URL newUrl = new URL(uniqueUrl);
+                //get url suffix: "refs/changes/19/1987/1" -> "/1987/1"
+                String suffix = jsonRevision.getJSONObject("fetch").getJSONObject("http").getString("ref");
+                for (int i = 0, j = 0; i < suffix.length(); i++) {
+                    if (suffix.charAt(i) == '/' && ++j == 3) {
+                        suffix = suffix.substring(i);
+                    }
+                }
+                log.debug("generated url: " + (URL_PREFIX + newUrl.getHost() + "/c" + newUrl.getFile().substring(2) + "/+" + suffix));
+                this.setUrl((URL_PREFIX + newUrl.getHost() + "/c" + newUrl.getFile().substring(2) + "/+" + suffix));
+
+            } catch (MalformedURLException e) {
+                log.warn(e.getMessage());
+            }
+
+            JSONObject jsonCommit = jsonRevision.getJSONObject("commit");
+            if (jsonCommit.containsKey("message")) {
+                String commitMessage = GerritJsonEventFactory.getString(jsonCommit, "message");
+                this.setCommitMessage(commitMessage);
+            }
+        }
+        if (json.containsKey("topic")) {
+            String topicName = GerritJsonEventFactory.getString(json, "topic");
+            if (StringUtils.isNotEmpty(topicName)) {
+                this.setTopicObject(new Topic(topicName));
+            }
+        }
+
+        String dateUpdated = GerritJsonEventFactory.getString(json, "updated");
+        String dateCreated = GerritJsonEventFactory.getString(json, "created");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            this.setCreatedOn(sdf.parse(dateCreated));
+            this.lastUpdated = sdf.parse(dateUpdated);
+            super.setLastUpdated(lastUpdated);
+        } catch (ParseException e) {
+            log.warn(e.getMessage());
+        }
+
+        convertApprovals(json);
+        this.patchSet = new GerritPatchSet(json, preferRest);
+
+        if (json.containsKey(GerritEventKeys.STATUS)) {
+            this.setStatus(GerritChangeStatus.valueOf(json.getString(com.sonymobile.tools.gerrit.gerritevents.dto.GerritEventKeys.STATUS)));
+            super.setStatus(this.getStatus());
+        }
+
+        String stringStatus = this.getStatus().toString();
+        this.isOpen = stringStatus.equals("NEW");
+    }
+
+    private void convertApprovals(JSONObject json) {
+        if (json.containsKey("labels")) {
+
+            ArrayList<String> approvalLabels = new ArrayList<>();
+            approvalLabels.add("Verified");
+            approvalLabels.add("Code-Review");
+            approvalLabels.add("Validated");
+            approvalLabels.add("Priority");
+
+            JSONObject jsonApprovals = json.getJSONObject("labels");
+            JSONArray approvals = new JSONArray();
+
+            for (String label : approvalLabels) {
+                addApproval(approvals, jsonApprovals, label);
+            }
+            if (!approvals.isEmpty()) {
+                json.element(GerritEventKeys.APPROVALS, approvals);
+            }
+        }
+    }
+
+    private void addApproval(JSONArray approvals, JSONObject jsonApprovals, String label) {
+
+        JSONObject approvalForLabel = new JSONObject();
+        if (jsonApprovals.containsKey(label)) {
+            JSONArray dataForLabelArray = jsonApprovals.getJSONObject(label).getJSONArray("all");
+            for (int i = 0; i < dataForLabelArray.size(); ++i) {
+                JSONObject dataForLabelObject = dataForLabelArray.getJSONObject(i);
+                if (!dataForLabelObject.getString("username").equals("builderbot")
+                        && !dataForLabelObject.getString("value").equals("0")) {
+                    String value = dataForLabelObject.getString("value");
+                    String date = dataForLabelObject.getString("date");
+                    String name = dataForLabelObject.getString("name");
+                    String username = dataForLabelObject.getString("username");
+                    JSONObject approvalBy = new JSONObject();
+                    approvalBy.element("name", name);
+                    approvalBy.element("username", username);
+                    approvalForLabel.element("type", label);
+                    approvalForLabel.element("description", label);
+                    approvalForLabel.element("value", value);
+                    approvalForLabel.element("grantedOn", date);
+                    approvalForLabel.element("by", approvalBy);
+                    approvals.element(approvalForLabel);
+                }
+            }
+        }
+    }
+
     public Date getLastUpdated() {
         return lastUpdated;
     }
 
     public GerritPatchSet getPatchSet() {
         return patchSet;
-    }
-
-    public String getStatus() {
-        return status;
     }
 
     public boolean isOpen() {

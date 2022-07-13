@@ -30,8 +30,8 @@ import java.util.Map;
  */
 public class SubtaskReviewsIssueAction extends AbstractIssueAction implements IssueAction {
 
-    private Issue subtask;
-    private List<GerritChange> changes;
+    private final Issue subtask;
+    private final List<GerritChange> changes;
 
     public SubtaskReviewsIssueAction(IssueTabPanelModuleDescriptor descriptor, Issue subtask, List<GerritChange> changes) {
         super(descriptor);
@@ -47,7 +47,7 @@ public class SubtaskReviewsIssueAction extends AbstractIssueAction implements Is
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void populateVelocityParams(@SuppressWarnings("rawtypes") Map velocityParams) {
+    protected void populateVelocityParams(Map velocityParams) {
         final int openReviews = changes == null ? 0 : NoOpenReviews.countReviewStatus(changes, true);
         final int closedReviews = changes == null ? 0 : NoOpenReviews.countReviewStatus(changes, false);
 

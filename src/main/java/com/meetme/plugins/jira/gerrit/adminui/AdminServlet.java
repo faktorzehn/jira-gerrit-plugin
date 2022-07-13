@@ -23,9 +23,10 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryException;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.GerritQueryHandler;
-import com.sonyericsson.hudson.plugins.gerrit.gerritevents.ssh.Authentication;
+import com.sonymobile.tools.gerrit.gerritevents.Credential;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandler;
+import com.sonymobile.tools.gerrit.gerritevents.GerritQueryHandlerHttp;
+import com.sonymobile.tools.gerrit.gerritevents.ssh.Authentication;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
@@ -42,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,18 +55,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * the admin configuration panel. It is described in detail
+ * <a href="https://developer.atlassian.com/server/framework/atlassian-sdk/creating-an-admin-configuration-form/">here.</a>
+ */
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = -9175363090552720328L;
     private static final Logger log = LoggerFactory.getLogger(AdminServlet.class);
 
-    private static final Object[] PACKAGE_PARTS = new String[] { "com", "meetme", "plugins", "jira", "gerrit" };
+    private static final Object[] PACKAGE_PARTS = new String[]{"com", "meetme", "plugins", "jira", "gerrit"};
     private static final String CONTENT_TYPE = "text/html;charset=utf-8";
 
     private static final String FIELD_ACTION = "action";
     private static final String ACTION_SAVE = "save";
     private static final String ACTION_TEST = "test";
 
-    private static String TEMPLATE_ADMIN = "templates/admin.vm";
+    private static final String TEMPLATE_ADMIN = "templates/admin.vm";
 
     private final UserManager userManager;
     private final TemplateRenderer renderer;
@@ -74,7 +80,7 @@ public class AdminServlet extends HttpServlet {
     private final GerritConfiguration configurationManager;
 
     public AdminServlet(final UserManager userManager, final LoginUriProvider loginUriProvider, final TemplateRenderer renderer,
-            final JiraHome jiraHome, final GerritConfiguration configurationManager, final ProjectManager projectManager) {
+                        final JiraHome jiraHome, final GerritConfiguration configurationManager, final ProjectManager projectManager) {
         this.userManager = userManager;
         this.loginUriProvider = loginUriProvider;
         this.renderer = renderer;
@@ -82,6 +88,7 @@ public class AdminServlet extends HttpServlet {
         this.configurationManager = configurationManager;
         this.projectManager = projectManager;
     }
+
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
@@ -93,6 +100,8 @@ public class AdminServlet extends HttpServlet {
         }
 
         response.setContentType(CONTENT_TYPE);
+
+        //tell TemplateRenderer to render the TEMPLATE_ADMIN template
         renderer.render(TEMPLATE_ADMIN, configToMap(configurationManager), response.getWriter());
     }
 
@@ -108,9 +117,10 @@ public class AdminServlet extends HttpServlet {
         map.put(GerritConfiguration.FIELD_QUERY_PROJECT, config.getProjectSearchQuery());
 
         if (config.getHttpBaseUrl() != null) {
-            map.put(GerritConfiguration.FIELD_HTTP_BASE_URL, config.getHttpBaseUrl().toASCIIString());
+            map.put(GerritConfiguration.FIELD_HTTP_BASE_URL, config.getHttpBaseUrl().toString());
             map.put(GerritConfiguration.FIELD_HTTP_USERNAME, config.getHttpUsername());
             map.put(GerritConfiguration.FIELD_HTTP_PASSWORD, config.getHttpPassword());
+            map.put(GerritConfiguration.FIELD_PREFER_REST_CONNECTION, String.valueOf(config.getPreferRestConnection()));
         }
 
         map.put(GerritConfiguration.FIELD_SHOW_EMPTY_PANEL, String.valueOf(config.getShowsEmptyPanel()));
@@ -126,7 +136,6 @@ public class AdminServlet extends HttpServlet {
         return map;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         Map<String, Object> map;
@@ -170,7 +179,7 @@ public class AdminServlet extends HttpServlet {
             // We'll store the *path* to the file in ConfigResource, to make it easy to look it
             // up in the future.
             if (log.isDebugEnabled()) {
-                log.debug("---- Saved ssh private key at: " + privateKeyPath.toString() + " ----");
+                log.debug("---- Saved ssh private key at: " + privateKeyPath + " ----");
             }
             configurationManager.setSshPrivateKey(privateKeyPath);
         } else if (configurationManager.getSshPrivateKey() != null) {
@@ -192,23 +201,56 @@ public class AdminServlet extends HttpServlet {
         return map;
     }
 
-    private void performConnectionTest(GerritConfiguration configuration, Map<String, Object> map) {
+    void performConnectionTest(GerritConfiguration configuration, Map<String, Object> map) {
         map.put("testResult", Boolean.FALSE);
 
-        if (!configuration.isSshValid()) {
-            map.put("testError", "not configured");
-            return;
-        }
+        if (configuration.getPreferRestConnection()) {
+            //future idea? better URL-check
+            Credential credential = new Credential() {
+                @Override
+                public Principal getUserPrincipal() {
+                    return new Principal() {
+                        @Override
+                        public String getName() {
+                            return configuration.getHttpUsername();
+                        }
+                    };
+                }
 
-        Authentication auth = new Authentication(configuration.getSshPrivateKey(), configuration.getSshUsername());
-        GerritQueryHandler query = new GerritQueryHandler(configuration.getSshHostname(), configuration.getSshPort(), null, auth);
+                @Override
+                public String getPassword() {
+                    return configuration.getHttpPassword();
+                }
+            };
 
-        try {
-            query.queryJava("limit:1", false, false, false);
-            map.put("testResult", Boolean.TRUE);
-        } catch (IOException | GerritQueryException e) {
-            e.printStackTrace();
-            map.put("testError", e.getMessage());
+            GerritQueryHandlerHttp query = new GerritQueryHandlerHttp(configuration.getHttpBaseUrl().toString(), credential, "");
+
+            try {
+                //try to fetch the newest change
+                query.queryJava("limit:1", false, false, false);
+                map.put("testResult", Boolean.TRUE);
+            } catch (IOException | com.sonymobile.tools.gerrit.gerritevents.GerritQueryException e) {
+                e.printStackTrace();
+                map.put("testError", e.getMessage());
+                log.error(e.getMessage());
+            }
+        } else {
+            if (configuration.isSshInvalid()) {
+                map.put("testError", "not configured");
+                return;
+            }
+
+            Authentication auth = new Authentication(configuration.getSshPrivateKey(), configuration.getSshUsername());
+            GerritQueryHandler query = new GerritQueryHandler(configuration.getSshHostname(), configuration.getSshPort(), null, auth);
+
+            try {
+                //try to fetch the newest change
+                query.queryJava("limit:1", false, false, false);
+                map.put("testResult", Boolean.TRUE);
+            } catch (IOException | com.sonymobile.tools.gerrit.gerritevents.GerritQueryException e) {
+                e.printStackTrace();
+                map.put("testError", e.getMessage());
+            }
         }
     }
 
@@ -263,6 +305,9 @@ public class AdminServlet extends HttpServlet {
         boolean showsEmptyPanelChecked = allFields.contains(GerritConfiguration.FIELD_SHOW_EMPTY_PANEL);
         configurationManager.setShowEmptyPanel(showsEmptyPanelChecked);
 
+        boolean preferRESTChecked = allFields.contains(GerritConfiguration.FIELD_PREFER_REST_CONNECTION);
+        configurationManager.setPreferRestConnection(preferRESTChecked);
+
         boolean useGerritProjectWhitelist = allFields.contains(GerritConfiguration.FIELD_USE_GERRIT_PROJECT_WHITELIST);
         configurationManager.setUseGerritProjectWhitelist(useGerritProjectWhitelist);
 
@@ -286,8 +331,7 @@ public class AdminServlet extends HttpServlet {
                 try {
                     privateKeyPath = File.createTempFile(tempFilePrefix, tempFileSuffix, dataDir);
                 } catch (IOException e) {
-                    log.info("---- Cannot create temporary file: " + e.getMessage() + ": " + dataDir
-                            .toString() + tempFilePrefix + tempFileSuffix + " ----");
+                    log.info("---- Cannot create temporary file: " + e.getMessage() + ": " + dataDir + tempFilePrefix + tempFileSuffix + " ----");
                     break;
                 }
 
@@ -308,6 +352,7 @@ public class AdminServlet extends HttpServlet {
         return privateKeyPath;
     }
 
+    //request ~~> URI
     private URI getUri(final HttpServletRequest request) {
         StringBuffer builder = request.getRequestURL();
 
