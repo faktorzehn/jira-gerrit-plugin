@@ -60,6 +60,7 @@
             <version>${jira.version}</version>
             <scope>provided</scope>
             <exclusions>
+                <!-- build pipeline doesn't like multiple versions of slf4j -->
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-api</artifactId>
@@ -141,15 +142,6 @@
             <version>27.0.1-jre</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
-        <!--dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.6.2</version>
-            <scope>provided</scope>
-        </-dependency-->
-
         <!-- Project dependencies -->
         <!-- https://mvnrepository.com/artifact/com.sonymobile.tools.gerrit/gerrit-events (local)-->
         <dependency>
@@ -161,10 +153,11 @@
                     <groupId>com.jcraft</groupId>
                     <artifactId>jsch</artifactId>
                 </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
+                <!-- build pipeline doesn't like multiple versions of slf4j -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
