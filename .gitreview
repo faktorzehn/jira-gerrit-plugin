@@ -1,0 +1,8 @@
+[gerrit]
+remote=origin
+defaultremote=origin
+host=gerrit.faktorzehn.de
+port=29418
+project=util/jira-gerrit-plugin
+defaultbranch=main
+track=true

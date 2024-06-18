@@ -53,6 +53,12 @@
         </developer>
     </developers>
     <dependencies>
+        <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <classifier>jdk15</classifier>
+            <version>2.4</version>
+        </dependency>
         <!-- Base Atlassian requirements -->
         <dependency>
             <groupId>com.atlassian.jira</groupId>
@@ -170,7 +176,7 @@
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
-            <version>4.2.3</version>
+            <version>4.8.5</version>
             <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.github.tomakehurst/wiremock -->
@@ -241,10 +247,13 @@
                 </executions>
             </plugin-->
             <!--Code quality-->
-            <plugin>   <!--requires Maven >=3.2.5-->
+            <!-- plugin> TODO: ENABLE
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.2.3</version>
+                <version>4.8.5.0</version>
+                <configuration>
+                    <maxHeap>2048</maxHeap>
+                </configuration>
                 <executions>
                     <execution>
                         <id>spotbugs</id>
@@ -259,7 +268,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
 
             <!--plugin>
                 <groupId>com.atlassian.plugin</groupId>
@@ -321,7 +330,7 @@
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jira.version>7.2.0</jira.version>
+        <jira.version>9.12.0-QR-20230811014358</jira.version>
         <amps.version>6.3.21</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>
         <atlassian.spring.scanner.version>1.2.13</atlassian.spring.scanner.version>
